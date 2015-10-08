@@ -25,7 +25,7 @@ public class WeatherApplication extends android.app.Application {
     public void onCreate() {
         super.onCreate();
         init();
-        Toast.makeText(this, "Applicatiion object is created", Toast.LENGTH_SHORT).show();
+       Log.d("WeatherApplication", "Applicatiion object is created");
     }
 
     /**
@@ -44,7 +44,7 @@ public class WeatherApplication extends android.app.Application {
 
     @Override
     public void onTerminate() {
-        Toast.makeText(this, "Applicatiion object is terminating", Toast.LENGTH_SHORT).show();
+        Log.d("WeatherApplication", "Applicatiion object is terminating");
         super.onTerminate();
     }
 
