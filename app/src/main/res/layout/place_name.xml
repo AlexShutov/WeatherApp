@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:weightSum="1">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2sp"
+        android:layout_marginLeft="4sp"
+        android:layout_marginRight="4sp">
+
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:id="@+id/idc_pn_place_name"
+            android:gravity="center"
+            android:hint="@string/idh_pn_place_name"
+            android:textSize="25sp" />
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="2sp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/ids_pn_latitude"
+                android:id="@+id/textView"
+                android:layout_marginLeft="20sp"
+                android:layout_marginRight="10sp" />
+
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/idc_pn_latitude"
+                android:hint="@string/idh_pn_latitude"
+                android:gravity="right"
+                android:layout_marginRight="120sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="2sp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/ids_pn_longitude"
+                android:id="@+id/textView2"
+                android:layout_marginLeft="20sp"
+                android:layout_marginRight="10sp" />
+
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/idc_pn_longitude"
+                android:hint="@string/idh_pn_longitude"
+                android:gravity="right"
+                android:layout_marginRight="120sp" />
+        </LinearLayout>
+
+    </LinearLayout>
+</LinearLayout>

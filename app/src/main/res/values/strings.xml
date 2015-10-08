@@ -1,0 +1,70 @@
+<resources>
+    <string name="app_name">Weather App</string>
+
+    <string name="action_settings">Settings</string>
+    <string name="locale_fd_percent">percent</string>
+    <string name="locale_fd_millimeters">millimeters</string>
+    <string name="locale_fd_degrees">degrees</string>
+
+    <string name="ids_fd_conditions">Conditions</string>
+    <string name="ids_fd_day_forecast">Day forecast</string>
+    <string name="ids_fd_night_forecast">Night forecast</string>
+    <string name="ids_fd_low_temperature">Low temperature</string>
+    <string name="ids_fd_high_temperature">High temperature</string>
+    <string name="ids_fd_average_humidity"> Average humidity</string>
+    <string name="ids_fd_precip_day">Precipitations day</string>
+    <string name="ids_fd_precip_night">Precipitations night</string>
+    <string name="ids_fd_btn_show_others">View another day</string>
+    <string name="ids_fd_btn_other_place">Choose other place</string>
+    <string name="ids_pn_latitude">Latitude:</string>
+    <string name="ids_pn_longitude">Longitude:</string>
+
+    <string name="ids_menu_update_online">Update online</string>
+    <string name="ids_menu_remove_all_places">Remove all places</string>
+    <string name="ids_menu_add_predefined_places">Add prefefined places</string>
+    <string name="ids_menu_add_new_place">Add new place</string>
+
+    <string name="ids_popup_add_places_deleted">All saved places were deleted</string>
+    <string name="ids_popup_all_forecasts_is_loaded">"All forecasts is loaded, totally: "</string>
+    <string name="ids_popup_predefined_add_predefined_places">Adding predefined places</string>
+
+
+    <string name="idh_fd_date">30-September-2015</string>
+    <string name="idh_fd_weekday">Saturday</string>
+    <string name="idh_fd_conditions">Sunny</string>
+    <string name="idh_fd_day_forecast">Day forecast will be here</string>
+    <string name="idh_fd_night_forecast">Night forecast will be here</string>
+    <string name="idh_fd_low_temperature">10 Degrees Celsius</string>
+    <string name="idh_fd_high_temperature"> 30 Degrees Celsius</string>
+    <string name="idh_fd_average_humidity">70 Percent</string>
+    <string name="idh_fd_precipitations_day">20 mm</string>
+    <string name="idh_fd_precipitations_night">40 mm</string>
+    <string name="idh_dd_date">30-September-2015</string>
+    <string name="idh_dd_weekday">Wednesday</string>
+    <string name="idh_pn_place_name">Taganrog</string>
+    <string name="idh_pn_latitude">66.6666666</string>
+    <string name="idh_pn_longitude">66.6666666</string>
+
+    <string name="idh_pn_no_places_found"> No saved places were found.
+        Touch to add.</string>
+    <string name="idh_fd_forecast_not_selected">No forecast is selected</string>
+
+    <string name="ids_predefined_place1_name">Moscow</string>
+    <string name="ids_predefined_place1_lat">55.751305</string>
+    <string name="ids_predefined_place1_lon">37.610604</string>
+
+    <string name="ids_predefined_place2_name">New York</string>
+    <string name="ids_predefined_place2_lat">40.772119</string>
+    <string name="ids_predefined_place2_lon">-73.974439</string>
+
+    <string name="ids_predefined_place3_name">San Francisco</string>
+    <string name="ids_predefined_place3_lat">37.766021</string>
+    <string name="ids_predefined_place3_lon">-122.424309</string>
+
+    <string name="ids_predefined_place4_name">Taganrog</string>
+    <string name="ids_predefined_place4_lat">47.207188</string>
+    <string name="ids_predefined_place4_lon">38.940123</string>
+
+<!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+</resources>

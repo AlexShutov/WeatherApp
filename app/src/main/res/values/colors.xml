@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="color_pn_name_only">#590CF7FF</color>
+    <color name="color_pn_processed_locally">#47E3FF0C</color>
+    <color name="color_pn_processed_online">#6F11FF2D</color>
+    <color name="color_fd_text_low_temp">#4561ff</color>
+    <color name="color_fd_text_high_temp">#ff070c</color>
+    <color name="color_fd_text_humidity">#fe2d6d16</color>
+</resources>

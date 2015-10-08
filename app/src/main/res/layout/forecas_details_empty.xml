@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/idc_pn_no_places_found"
+        android:text="@string/idh_fd_forecast_not_selected"
+        android:textSize="40sp"
+        android:layout_margin="10sp"
+        android:gravity="center" />
+</LinearLayout>

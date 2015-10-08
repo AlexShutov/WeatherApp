@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="fill_parent"
+    android:orientation="vertical"
+    android:baselineAligned="false"
+    android:transitionGroup="false"
+    android:weightSum="1">
+
+    <ScrollView
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:id="@+id/scrollView" >
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                android:showDividers="middle">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/idc_fd_date"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginRight="4dp"
+                    android:textSize="20sp"
+                    android:gravity="center"
+                    android:hint="@string/idh_fd_date"
+                    android:editable="false"
+                    android:textIsSelectable="false" />
+
+                <TextView
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/idc_fd_weekday"
+                    android:textSize="22sp"
+                    android:paddingLeft="2dp"
+                    android:paddingRight="4dp"
+                    android:gravity="center"
+                    android:hint="@string/idh_fd_weekday" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="4dp"
+                android:layout_marginLeft="5dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="fill_parent"
+                    android:id="@+id/idsc_fd_conditions_caption"
+                    android:text="@string/ids_fd_conditions"
+                    android:selectAllOnFocus="false"
+                    android:textSize="15sp"
+                    android:gravity="left|center"
+                    android:typeface="serif" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/idc_fd_conditions"
+                    android:hint="@string/idh_fd_conditions"
+                    android:gravity="center"
+                    android:textSize="24sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="4dp"
+                android:layout_marginLeft="3dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/idsc_fd_day_forecast"
+                    android:text="@string/ids_fd_day_forecast"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/idc_fd_day_forecast"
+                    android:hint="@string/idh_fd_day_forecast" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="4dp"
+                android:layout_marginLeft="3dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/idsc_fd_night_forecast"
+                    android:text="@string/ids_fd_night_forecast"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/idc_fd_night_forecat"
+                    android:hint="@string/idh_fd_night_forecast" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="0dp"
+                android:layout_marginLeft="5dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/idsc_fd_low_temperature"
+                    android:text="@string/ids_fd_low_temperature"
+                    android:textSize="24sp"
+                    android:textColor="@color/color_fd_text_low_temp" />
+
+                <TextView
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/idc_fd_low_temperature"
+                    android:hint="@string/idh_fd_low_temperature"
+                    android:gravity="end"
+                    android:layout_marginRight="20dp"
+                    android:textColor="#4561ff"
+                    android:textSize="18sp" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="0dp"
+                android:layout_marginRight="5dp"
+                android:layout_marginLeft="5dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/idsc_fd_high_temperature"
+                    android:text="@string/ids_fd_high_temperature"
+                    android:textSize="20sp"
+                    android:textColor="@color/color_fd_text_high_temp" />
+
+                <TextView
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/idc_fd_high_temperature"
+                    android:hint="@string/idh_fd_high_temperature"
+                    android:gravity="end"
+                    android:layout_marginRight="20dp"
+                    android:textColor="#ff070c"
+                    android:textSize="18sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="0dp"
+                android:layout_marginLeft="5dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/idsc_fd_aver_humidity"
+                    android:text="@string/ids_fd_average_humidity"
+                    android:textSize="20sp"
+                    android:textColor="@color/color_fd_text_humidity" />
+
+                <TextView
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/idc_fd_aver_humidt"
+                    android:hint="@string/idh_fd_average_humidity"
+                    android:gravity="end"
+                    android:layout_marginRight="20dp"
+                    android:textColor="#fe2d6d16"
+                    android:textSize="18sp" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/idc_fd_frame_day_precip"
+                android:layout_marginLeft="5dp"
+                android:layout_marginTop="4dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/idsc_fd_precip_day"
+                    android:text="@string/ids_fd_precip_day"
+                    android:textSize="20sp"
+                    android:layout_marginRight="4dp" />
+
+                <TextView
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/idc_fd_precip_day"
+                    android:gravity="right"
+                    android:layout_marginRight="20dp"
+                    android:textSize="18sp"
+                    android:hint="@string/idh_fd_precipitations_day" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/idc_fd_frame_night_precip"
+                android:layout_marginLeft="5dp"
+                android:layout_marginTop="4dp" >
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/idsc_fd_precip_night"
+                    android:text="@string/ids_fd_precip_night"
+                    android:textSize="20sp"
+                    android:layout_marginRight="4dp" />
+
+                <TextView
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/idc_fd_precip_night"
+                    android:gravity="right"
+                    android:layout_marginRight="20dp"
+                    android:textSize="18sp"
+                    android:hint="@string/idh_fd_precipitations_night" />
+            </LinearLayout>
+
+            <RelativeLayout
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="83dp"
+                android:layout_gravity="center_horizontal"
+                android:paddingTop="20dp">
+
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="101dp"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginRight="4dp"
+                    android:weightSum="1">
+
+                    <Button
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/ids_fd_btn_other_place"
+                        android:id="@+id/idc_fd_btn_other_place"
+                        android:textSize="12sp" />
+
+                    <Button
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/ids_fd_btn_show_others"
+                        android:id="@+id/idc_fd_btn_show_others"
+                        android:layout_alignParentBottom="true"
+                        android:layout_alignParentLeft="true"
+                        android:layout_alignParentStart="true"
+                        android:layout_alignParentEnd="true"
+                        android:layout_alignParentRight="true"
+                        android:layout_marginLeft="0dp"
+                        android:layout_marginRight="0dp"
+                        android:textSize="12sp" />
+
+                </LinearLayout>
+            </RelativeLayout>
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>
