@@ -76,6 +76,9 @@ public class SinglePaneStrategy implements IViewingStrategy {
     @Override
     public void showPlaceForecast(PlaceForecast f) {
         LocationData place = f.getPlace();
+        if (f.getForecast() == null){
+            mForecastViewer.showForecast(null);
+        }
         Map<LocationData,Forecast> data = mHolder.getData();
         LocationData currPlace = mHolder.getCurrPlace();
         if (currPlace != null && currPlace == place){

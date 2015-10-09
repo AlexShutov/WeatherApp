@@ -215,6 +215,7 @@ public class LoadingFacility extends HandlerThread
                 break;
             case REMOVE_ALL_PLACES:
                 ls.dropPlacesTable();
+                ls.dropForecastTable();
                 break;
             default:
         }
