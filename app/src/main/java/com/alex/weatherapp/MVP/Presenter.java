@@ -49,7 +49,7 @@ public class Presenter extends PresenterBase {
             public void onCompletion(List<LocationData> locations) {
                 Log.d("Presenter", "List of places is loaded");
                 if (!isViewReady()) return;
-                mAttachedView.handleListOfSavedPlaces(locations);
+                mAttachedView.getContract().handleListOfSavedPlaces(locations);
             }
         });
     }
@@ -66,14 +66,14 @@ public class Presenter extends PresenterBase {
             public void onResult(LocationData place, Forecast forecast) {
                 PlaceForecast f = new PlaceForecast(place, forecast);
                 if (!isViewReady()) return;
-                mAttachedView.showPlaceForecast(f);
+                mAttachedView.getContract().showPlaceForecast(f);
             }
         });
         fetcher.setFinalCallback(new ILoadingFacade.IOnPlaceForecastsLoaded() {
             @Override
             public void getPlaceForecasts(List<PlaceForecast> placeForecasts) {
                 if (!isViewReady()) return;
-                mAttachedView.showPlacesForecasts(placeForecasts);
+                mAttachedView.getContract().showPlacesForecasts(placeForecasts);
             }
         });
         fetcher.begin();
@@ -91,7 +91,7 @@ public class Presenter extends PresenterBase {
                     public void onResult(LocationData place, Forecast forecast) {
                         if (!isViewReady()) return;
                         PlaceForecast f = new PlaceForecast(place, forecast);
-                        mAttachedView.showStandalonePlaceForecast(f);
+                        mAttachedView.getContract().showStandalonePlaceForecast(f);
                     }
                 });
     }
@@ -113,7 +113,7 @@ public class Presenter extends PresenterBase {
             public void onResult(LocationData place, Forecast forecast) {
                 if (!isViewReady()) return;
                 PlaceForecast f = new PlaceForecast(place, forecast);
-                mAttachedView.showPlaceForecast(f);
+                mAttachedView.getContract().showPlaceForecast(f);
             }
         });
     }
@@ -140,7 +140,7 @@ public class Presenter extends PresenterBase {
                     @Override
                     public void onCompletion() {
                         if(!isViewReady()) return;
-                        mAttachedView.onNewPlaceIsAddedToPlaceRegistry(p);
+                        mAttachedView.getContract().onNewPlaceIsAddedToPlaceRegistry(p);
                     }
                 });
     }
@@ -155,7 +155,7 @@ public class Presenter extends PresenterBase {
             @Override
             public void onCompletion() {
                 if (!isViewReady()) return;
-                mAttachedView.onAllPlacesRemoved();
+                mAttachedView.getContract().onAllPlacesRemoved();
             }
         });
     }

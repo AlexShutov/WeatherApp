@@ -68,7 +68,6 @@ public class ForecastViewer implements IForecastViewer {
             Forecast.DayForecast df = mForecastToShow.mDayForecasts.get(0);
             showDayForecast(df);
         }
-
     }
 
     @Override

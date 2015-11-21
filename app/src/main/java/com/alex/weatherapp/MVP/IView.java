@@ -3,7 +3,7 @@ package com.alex.weatherapp.MVP;
 /**
  * Created by Alex on 30.09.2015.
  */
-public interface IView extends IViewContract {
+public interface IView {
 
     /**
      * Will be called by presenter when view attached to it
@@ -19,4 +19,5 @@ public interface IView extends IViewContract {
     boolean isUIReady();
     void finish();
 
+    IViewContract getContract();
 }

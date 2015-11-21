@@ -22,6 +22,7 @@ import com.alex.weatherapp.LoadingSystem.PlaceForecast;
 import com.alex.weatherapp.LoadingSystem.ServiceWrapper.ILoadingConnection;
 import com.alex.weatherapp.MVP.IPresenter;
 import com.alex.weatherapp.MVP.IView;
+import com.alex.weatherapp.MVP.IViewContract;
 import com.alex.weatherapp.R;
 import com.alex.weatherapp.WeatherApplication;
 
@@ -29,8 +30,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends Activity
-implements IView, ILinkToHolderActivity
+implements IView, IViewContract, ILinkToHolderActivity
 {
+    /**
+     * Here activity is the contract itself, but it may come handy to have mock contract for
+     * the screen, which, perhaps, doesn't want to do everything, or just some logging decoration
+     * @return
+     */
+    @Override
+    public IViewContract getContract() {
+        return this;
+    }
+
     @Override
     public void connectToPresenter(IPresenter presenter) {
         mPresenter = presenter;

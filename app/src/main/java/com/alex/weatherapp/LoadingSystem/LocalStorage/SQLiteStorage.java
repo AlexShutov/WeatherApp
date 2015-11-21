@@ -378,7 +378,6 @@ public class SQLiteStorage {
                     " < ? ";
             String[] whereArgs = new String[] { String.valueOf(dayOfYear)};
             int n = db.delete(ForecastTable.TABLE_NAME, whereClause, whereArgs);
-
         }
 
         @Override

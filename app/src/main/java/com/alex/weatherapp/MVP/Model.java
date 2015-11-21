@@ -12,7 +12,6 @@ public class Model implements IModel {
 
     public Model(Context context) {
         mAppContext = context;
-        mConnectionToModelService = new ConnectionToLoadingSystem(mAppContext);
     }
 
     /**
@@ -32,9 +31,8 @@ public class Model implements IModel {
 
     @Override
     public ILoadingConnection getServiceConnection() {
-        return mConnectionToModelService;
+        return new ConnectionToLoadingSystem(mAppContext);
     }
 
     private Context mAppContext;
-    private ILoadingConnection mConnectionToModelService;
 }
