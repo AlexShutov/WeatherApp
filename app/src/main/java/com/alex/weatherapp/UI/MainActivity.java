@@ -157,6 +157,7 @@ implements IView, IViewContract, ILinkToHolderActivity
 
     @Override
     protected void onPause() {
+        mPresenter.setForceNetworkUpdate(false);
         mPresenter.disconnectView(this);
         super.onPause();
     }
