@@ -19,6 +19,8 @@
     <string name="ids_pn_latitude">Latitude:</string>
     <string name="ids_pn_longitude">Longitude:</string>
 
+
+
     <string name="ids_menu_update_online">Update online</string>
     <string name="ids_menu_remove_all_places">Remove all places</string>
     <string name="ids_menu_add_predefined_places">Add prefefined places</string>
@@ -49,6 +51,15 @@
         Touch to add.</string>
     <string name="idh_fd_forecast_not_selected">No forecast is selected</string>
 
+    <string name="idh_dfb_temp">-10..-20 C</string>
+    <string name="idh_dfb_date">21 nov 2015</string>
+    <string name="idh_dfb_short_forecast">Sunny, high chances of rain, blah blah blah</string>
+
+    <string name="idh_wd_place_name">Taganrog</string>
+    <string name="idh_wd_temp_from">From -4</string>
+    <string name="idh_wd_temp_to">To 3 degrees</string>
+    <string name="idh_wd_details">Sunshine</string>
+
     <string name="ids_predefined_place1_name">Moscow</string>
     <string name="ids_predefined_place1_lat">55.751305</string>
     <string name="ids_predefined_place1_lon">37.610604</string>
@@ -67,4 +78,6 @@
 
 <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="appwidget_text">EXAMPLE</string>
+    <string name="add_widget">Add widget</string>
 </resources>

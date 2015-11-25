@@ -1,6 +1,7 @@
 package com.alex.weatherapp.UIv2;
 
 import android.app.Activity;
+import android.app.FragmentManager;
 import android.content.Context;
 import android.location.Location;
 import android.location.LocationManager;
@@ -12,6 +13,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.alex.weatherapp.LoadingSystem.ForecastRequest.Forecast;
 import com.alex.weatherapp.LoadingSystem.GeolookupRequest.LocationData;
 import com.alex.weatherapp.LoadingSystem.PlaceForecast;
 import com.alex.weatherapp.MVP.IPresenter;
@@ -28,10 +30,15 @@ import com.alex.weatherapp.MapsFramework.MapVisuals.Markers.PlaceData;
 import com.alex.weatherapp.MapsFramework.MapVisuals.Shapes.CircularRegionData;
 import com.alex.weatherapp.MapsFramework.MapVisuals.Shapes.RectRegionData;
 import com.alex.weatherapp.R;
+import com.alex.weatherapp.UI.PlaceForecastViewer.ForecastViewer;
+import com.alex.weatherapp.UI.PlaceForecastViewer.IForecastViewer;
+import com.alex.weatherapp.UI.PlacesViewer.RegistryOfPlaces;
 import com.alex.weatherapp.UIv2.CityPicker.CityPicker;
 import com.alex.weatherapp.UIv2.CityPicker.ICityPickedFeedback;
 import com.alex.weatherapp.UIv2.CityPicker.ICityPicker;
 import com.alex.weatherapp.UIv2.CityPicker.ICityPickerChannel;
+import com.alex.weatherapp.UIv2.ForecastViewer.DayForecastSimpleViewer;
+import com.alex.weatherapp.UIv2.ForecastViewer.SimpleForecastViewer;
 import com.alex.weatherapp.Utils.Logger;
 import com.alex.weatherapp.WeatherApplication;
 import com.google.android.gms.common.ConnectionResult;
@@ -54,118 +61,35 @@ import java.util.concurrent.ThreadPoolExecutor;
 /**
  * Created by Alex on 03.11.2015.
  */
-public class TestActivity extends FragmentActivity implements IView,
-        IFeedbackShapes, ICityPickerChannel, ICityPickedFeedback
+public class TestActivity extends FragmentActivity implements
+         ICityPickerChannel, ICityPickedFeedback
 {
-    private class ViewContract implements IViewContract {
-        @Override
-        public void handleListOfSavedPlaces(List<LocationData> locations) {
-            StringBuilder sb = new StringBuilder();
-            for (LocationData ld : locations){
-                sb.append(ld.getmPlaceName());
-                sb.append(" ");
-            }
-            Logger.i("List of saved places: " + sb.toString());
-        }
-
-        @Override
-        public void showPlacesForecasts(List<PlaceForecast> forecasts) {
-
-        }
-
-        @Override
-        public void showPlaceForecast(PlaceForecast forecast) {
-
-            Logger.i("Forecast for: " + forecast.getPlace().getmPlaceName());
-        }
-
-        @Override
-        public void showStandalonePlaceForecast(PlaceForecast forecast) {
-
-        }
-
-        @Override
-        public void onNewPlaceIsAddedToPlaceRegistry(LocationData placeInfo) {
-
-        }
-
-        @Override
-        public void onAllPlacesRemoved() {
-
-        }
-
-        @Override
-        public void showOnlineForecast(PlaceForecast forecast) {
-
-        }
-
-        @Override
-        public void showGoogleGeolookup(LocationData placeLoc, String placeName) {
-
-        }
-    }
-    IViewContract mViewContract;
-
-    /** MVP- inherited and related stuff*/
-    private void initIViewInheritage(){
-        mPresenter = null;
-        mIsPresenterConnected = false;
-        mIsUIReady = true;
-    }
-
-    @Override
-    public void connectToPresenter(IPresenter presenter) {
-        mPresenter = presenter;
-        if (presenter != null) {
-            mIsPresenterConnected = true;
-        } else {
-            mIsPresenterConnected = false;
-            Log.d("MVP error", "Failed to connect to Presenter");
-        }
-    }
-
-    @Override
-    public boolean isPresenterConnected() { return mPresenter != null && mIsPresenterConnected; }
-
-    @Override
-    public boolean isUIReady() { return mIsUIReady; }
-
-    @Override
-    public IViewContract getContract() { return mViewContract;  }
-
-    private IPresenter mPresenter;
-    boolean mIsPresenterConnected;
-    boolean mIsUIReady;
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.test_activity_layout);
 
-
+        mPresenter = null;
         final Button testBtn = (Button)findViewById(R.id.idc_ta_btn_test);
         testBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                test();
+                mHub.test();
             }
         });
-        mViewContract = new ViewContract();
-        initIViewInheritage();
 
         final Button test1 = (Button) findViewById(R.id.idc_ta_btn_test1);
         test1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                test1();
+                mHub.test1();
             }
         });
         final Button test2 = (Button) findViewById(R.id.idc_ta_btn_test2);
         test2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                test2();
+                mHub.test2();
             }
         });
 
@@ -175,53 +99,23 @@ public class TestActivity extends FragmentActivity implements IView,
         mMapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.idc_ta_map);
         mMap = mMapFragment.getMap();
-        mMapFacade = new MapFacade(mMap);
 
         CameraUpdate newCamera = CameraUpdateFactory
                 .newLatLngZoom(new LatLng(37.4218, -122.0840), 14);
         mMap.moveCamera(newCamera);
-
-        Deployer deployer = new Deployer();
-        deployer.setFacade(mMapFacade);
-
-        ShapesAndMarkersBehaviour behaviour = new ShapesAndMarkersBehaviour();
-        behaviour.activate(mMapFacade);
-        behaviour.setFeedbackInterface(this);
-        mIface = behaviour.getUserInterface();
 
         /////////////////////////////////////////////////////////////////////////////////
         mCityPicker = new CityPicker(R.id.idc_ta_city_picker);
         mCityPicker.setActivity(this);
         mCityPicker.setFeedback(this);
 
-        ArrayList<LocationData> cities = new ArrayList<>();
-        LocationData l =  new LocationData(0.0f, 0.0f, "Place 1");
-        cities.add(l);
-        l = new LocationData(1.0f, 0.0f, "The hell");
-        cities.add(l);
-        mCityPicker.setCities(cities);
-        mCityPicker.refresh();
-    }
+        int[] frames = new int[]{R.id.idc_ta_short_forecast_frame,
+                R.id.idc_ta_short_forecast_frame_2,
+                R.id.idc_ta_short_forecast_frame_3};
+        mForecastViewer = new SimpleForecastViewer(frames, this);
 
-    static int placeCnt= 0;
-    public void test1(){
-        String name = "Place " + String.valueOf(placeCnt);
-        LocationData placeN = new LocationData( 47.0f + placeCnt,47.0f + placeCnt, name);
-        mCityPicker.addCity(placeN);
-        placeCnt++;
-        mPresenter.addNewPlace(placeN);
-        mPresenter.getListOfSavedPlaces();
-    }
-    public void test2(){
-
-        String name = "Place " + String.valueOf(placeCnt-1);
-        LocationData placeN = new LocationData( 47.0f + placeCnt-1,47.0f + placeCnt-1, name);
-        //mCityPicker.removeCity(placeN);
-        showMsg(mCityPicker.getPickedCity().getmPlaceName());
-        mCityPicker.pickCity(placeN);
-
-        //mCityPicker.removeCity("The hell");
-
+        mHub = new AppHub();
+        mHub.init(this, mMap, mCityPicker, mForecastViewer);
     }
 
 
@@ -246,31 +140,16 @@ public class TestActivity extends FragmentActivity implements IView,
             WeatherApplication app = (WeatherApplication)getApplication();
             mPresenter = app.getDefaultPresenter();
         }
-        mPresenter.setView(this);
-        if (mPresenter.isPresenterReady()){
-            // add some stuff with mPresenter involved
-            showPopup("Presenter is connected in onResume");
-        } else {
-            mPresenter.setPresenterReadyCallback(new IPresenter.IPresenterReady() {
-                @Override
-                public void onPresenterReady(IPresenter presenter) {
-                    // add some stuff in here
-                    showPopup("presenter is first created");
-                }
-            });
-        }
+        mHub.resume(mPresenter);
         mMap.setMyLocationEnabled(true);
-        mMapFacade.resume();
+   //     mMapFacade.resume();
 
-        mCityPicker.restoreState();
     }
 
     @Override
     protected void onPause() {
-        mPresenter.disconnectView(this);
+        mHub.pause();
         mMap.setMyLocationEnabled(false);
-        mMapFacade.suspend();
-        mCityPicker.saveState();
         super.onPause();
     }
 
@@ -280,7 +159,7 @@ public class TestActivity extends FragmentActivity implements IView,
     }
 
 
-    void showMsg(String msg){
+    public void showMsg(String msg){
         TextView tv = (TextView)findViewById(R.id.idc_ta_text_msg);
         tv.setText(msg);
     }
@@ -288,47 +167,7 @@ public class TestActivity extends FragmentActivity implements IView,
         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
     }
 
-    void test(){
-        showMsg("Test");
-        CircularRegionData circle = new CircularRegionData(new LatLng(37.4318, -122.0840), 400);
-        circle.setShapeName("Added_circle");
-        mIface.addCircularArea(circle);
-        float lon = -122.1040f;
 
-        RectRegionData rect = new RectRegionData();
-        rect.setShapeName("rect1");
-        rect.setRightBottom(new LatLng(37.4169, -122.0890));
-        rect.setTopLeft(new LatLng(37.4269, -122.0790));
-        mIface.addRectangularArea(rect);
-
-        rect = new RectRegionData();
-        rect.setShapeName("rect2");
-        rect.setTopLeft(new LatLng(37.4269, -122.0890));
-        rect.setRightBottom(new LatLng(37.4169, -122.10));
-        mIface.addRectangularArea(rect);
-
-
-        circle = new CircularRegionData(new LatLng(37.4318, -122.0940), 400);
-        circle.setShapeName("Circle");
-        mIface.addCircularArea(circle);
-
-
-        LocationData tmpLoc = new LocationData(37.4218, -122.0840, "Some place");
-        PlaceData tmpPlace = new PlaceData(tmpLoc);
-        //dataFamily.addEntity(tmpPlace);
-        tmpPlace.setMarkerType(PlaceData.MarkerType.BitmapIcon);
-        tmpPlace.setIsDraggable(true);
-        List<PlaceData> info = new ArrayList<>();
-        info.add(tmpPlace);
-        mIface.addInfoMarker(tmpPlace);
-        PlaceData t2 = new PlaceData(tmpPlace);
-        //mIface.removeInfoMarekr(t2);
-        mIface.selectShape("Circle", true);
-        mIface.deselectShape("Circle");
-
-
-
-    }
 
     /** Methods related to maps and gplay library */
     void validateGPlayReady(){
@@ -375,6 +214,7 @@ public class TestActivity extends FragmentActivity implements IView,
     tmpPlace.setMarkerType(PlaceData.MarkerType.BitmapIcon);
     tmpPlace.setIsDraggable(false);
 */
+    /*
     @Override
     public void showServiceMessage(String msg) {
         showPopup(msg);
@@ -404,12 +244,17 @@ public class TestActivity extends FragmentActivity implements IView,
     public void onInfoMarkerClick(PlaceData infoMarker) {
         showMsg("Info marker is clicked: " + infoMarker.getLocation().getmPlaceName());
     }
+    */
 /////////////////////////////////////////////////////////////////////
-    private MapFacade mMapFacade;
-    ISysShapesDisplay mIface;
+  //  private MapFacade mMapFacade;
+   // ISysShapesDisplay mMapIface;
+    private IPresenter mPresenter;
 
     private SupportMapFragment mMapFragment;
     private GoogleMap mMap;
 
     private CityPicker mCityPicker;
+    private IForecastViewer mForecastViewer;
+
+    private AppHub mHub;
 }

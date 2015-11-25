@@ -18,6 +18,7 @@ public class ForecastViewer implements IForecastViewer {
         mForecastToShow = new Forecast();
         mFrameResourceID = 0;
         mIsOtherPlaceButtonActive = true;
+        mIsOtherDayButtonActive = true;
         mOtherBtnCallback = null;
     }
     public ForecastViewer(Activity activity, int frameResourceID){
@@ -25,6 +26,7 @@ public class ForecastViewer implements IForecastViewer {
         mForecastToShow =  new Forecast();
         mFrameResourceID = frameResourceID;
         mIsOtherPlaceButtonActive = true;
+        mIsOtherDayButtonActive = true;
         mOtherBtnCallback = null;
     }
 
@@ -43,7 +45,8 @@ public class ForecastViewer implements IForecastViewer {
         Log.d("Viewing strategy", "void showDayForecast(Forecast.DayForecast forecast)");
         FragmentManager fm = mHolder.getFragmentManager();
         ForecastDetailsFragment fFragment =
-                ForecastDetailsFragment.newInstance(forecast,true, mIsOtherPlaceButtonActive);
+                ForecastDetailsFragment.newInstance(forecast,mIsOtherDayButtonActive,
+                        mIsOtherPlaceButtonActive);
         fm.beginTransaction().replace(mFrameResourceID, fFragment)
                 .addToBackStack(WeatherApplication.BACK_STACK_TAG).commit();
     }
@@ -109,6 +112,11 @@ public class ForecastViewer implements IForecastViewer {
         mIsOtherPlaceButtonActive = isActive;
     }
 
+
+    public void setIsOtherDayButtonActive(boolean isActive){
+        mIsOtherDayButtonActive = isActive;
+    }
+
     private Activity mHolder;
     private Forecast mForecastToShow;
     private int mFrameResourceID;
@@ -117,4 +125,5 @@ public class ForecastViewer implements IForecastViewer {
     /** if set, Other place button will appear next time, when day forecast
      * fragment is displayed. True by default */
     private boolean mIsOtherPlaceButtonActive;
+    private boolean mIsOtherDayButtonActive;
 }

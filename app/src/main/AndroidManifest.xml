@@ -4,21 +4,26 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
 
     <application
-        android:allowBackup="true"
         android:name=".WeatherApplication"
+        android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name=".UI.MainActivity"
-            android:label="@string/app_name" >
+            android:name=".UIv2.TestActivity"
+            android:label="Test screen" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name=".UI.MainActivity"
+            android:label="@string/app_name" >
         </activity>
 
         <receiver
@@ -32,6 +37,50 @@
             android:enabled="true"
             android:exported="false" >
         </service>
+
+        <receiver android:name=".UI.Test.SimpleAppWidget" >
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/simple_appwidget" />
+        </receiver>
+        <receiver android:name=".AppWidget.WeatherWidget" >
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/weather_widget" />
+        </receiver>
+
+        <service android:name=".UI.Test.RandomService" >
+        </service>
+        <service
+            android:name=".AppWidget.WeatherWidgetUpdateService"
+            android:exported="false" >
+        </service>
+
+
+        <!-- Maps v2 requires OpenGL ES 2.0 -->
+        <uses-feature
+            android:glEsVersion="0x00020000"
+            android:required="true" />
+
+        <uses-permission android:name="com.example.mapdemo.permission.MAPS_RECEIVE" />
+        <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
+
+        <!-- Permissions Required to Display a Map -->
+        <uses-permission android:name="android.permission.INTERNET" />
+        <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+        <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+        <uses-permission android:name= "com.google.android.providers.gsf.permission.READ_GSERVICES" />
+
+        <meta-data
+            android:name="com.google.android.maps.v2.API_KEY"
+            android:value="AIzaSyAeKvhb0Ie_YNRJXhW6Sle3LGVywehDnB4 " />
     </application>
 
 </manifest>
