@@ -93,6 +93,7 @@ public class MapFacade {
     public GoogleMap getAssignedMap(){ return mGMap;}
 
 
+
     /** Accessors for parts of this facade. It partially breaks its meaning, by allowing changing
      * them. Another solution- make Deployer inner class for allowing it accessing those
      * parts, but it wil make this class too cumbersome.

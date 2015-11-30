@@ -1,17 +1,18 @@
 package com.alex.weatherapp.UIv2;
 
-import android.util.Log;
+import android.location.LocationManager;
 
 import com.alex.weatherapp.LoadingSystem.ForecastRequest.Forecast;
 import com.alex.weatherapp.LoadingSystem.GeolookupRequest.LocationData;
 import com.alex.weatherapp.LoadingSystem.PlaceForecast;
-import com.alex.weatherapp.MapsFramework.Interfacing.IFeedbackInterface;
+import com.alex.weatherapp.LoadingSystem.WUndergroundLayer.WUForecastData;
+import com.alex.weatherapp.LoadingSystem.WUndergroundLayer.WUndergroundGeolookupData;
 import com.alex.weatherapp.UI.PlaceForecastViewer.IForecastViewer;
 import com.alex.weatherapp.UIv2.CityPicker.ICityPickedFeedback;
 import com.alex.weatherapp.UIv2.CityPicker.ICityPicker;
 import com.alex.weatherapp.Utils.Logger;
 
-import java.lang.reflect.Array;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -31,13 +32,36 @@ public class ViewingController implements IViewingController {
         mKnownPlaces = new TreeSet<>();
     }
 
+    /**
+     * We check whether picker has feedback interface set and if does, we use it as
+     * external feedback for this controller
+     * @param placePicker
+     */
     @Override
     public void assignPlacePicker(ICityPicker placePicker){
         mCityPicker = placePicker;
+        if (null == mCityPicker){
+            return;
+        }
+        ICityPickedFeedback pickerFeedback = placePicker.getFeedback();
+        if (null != pickerFeedback){
+            setOnCityPickedFeedback(pickerFeedback);
+        }
+        placePicker.setFeedback(mPlacePickerAndForecastViewerBinder);
     }
     @Override
     public void assignForecastViewer(IForecastViewer forecastViewer) {
         mForecastViewer = forecastViewer;
+    }
+
+    @Override
+    public ICityPicker getAssignedPicker() throws IllegalStateException {
+        if (null == mCityPicker){
+            String msg = "Caller are trying to retrive unassigned ICityPicker";
+            Logger.w(msg);
+            throw new IllegalStateException(msg);
+        }
+        return mCityPicker;
     }
 
     @Override
@@ -75,7 +99,21 @@ public class ViewingController implements IViewingController {
             mCityPicker.setCities(places);
         }
         /** Forecast for picked city has arrived, update forecast viewer */
-        if (mCityPicker.getPickedCity().equals(place)){
+        LocationData currPicked = null;
+        try {
+            currPicked = mCityPicker.getPickedCity();
+            if (null != currPicked && currPicked.equals(place)){
+                mForecastViewer.showForecast(forecast.getForecast());
+            }
+        }catch (IllegalStateException ise){
+            Logger.w("can't return a picked city, reason: " + ise.getMessage());
+        }
+        /** in the case when current picked place is unknown because ui isn't rendered yet,
+         * request picker to pick that place again and viewer to show forecast for that place
+         */
+        if (null == currPicked){
+            Logger.w("UI isn't rendered, acquiring place and forecast update anyway");
+            mCityPicker.pickCity(place);
             mForecastViewer.showForecast(forecast.getForecast());
         }
     }
@@ -99,14 +137,52 @@ public class ViewingController implements IViewingController {
     }
 
     @Override
-    public void setOnCityPickedFeedback(ICityPickedFeedback cityPickedFeedback) {
+    public List<LocationData> getKnownPlaces() {
+        List<LocationData> places = new ArrayList<>();
+        places.addAll(mKnownPlaces);
+        return places;
+    }
 
+    @Override
+    public void setOnCityPickedFeedback(ICityPickedFeedback cityPickedFeedback) {
+        mCityPickerExternalFeedback = cityPickedFeedback;
     }
 
 
+    /**
+     * Here we accept place selected by user. Place picker will update itself, here we need
+     * to show forecast for that place
+     */
+    private void processUserSelectingPlace(LocationData pickedPlace){
+        PlaceForecast pf = null;
+        try{
+            pf = this.getForecast(pickedPlace);
+            mForecastViewer.showForecast(pf.getForecast());
+            mCityPicker.pickCity(pickedPlace);
+        }catch (IllegalStateException ise){
+        }catch (IllegalArgumentException iae){
+        }
+        if (null == pf){
+            Forecast dummy = new Forecast();
+            mForecastViewer.showForecast(dummy);
+        }
+        if (null != mCityPickerExternalFeedback){
+            mCityPickerExternalFeedback.onCityPicked(pickedPlace);
+        }
+
+    }
+    private ICityPickedFeedback mPlacePickerAndForecastViewerBinder =
+            new ICityPickedFeedback() {
+                @Override
+                public void onCityPicked(LocationData pickedCity) {
+                    processUserSelectingPlace(pickedCity);
+                }
+            };
+
+    private ICityPickedFeedback mCityPickerExternalFeedback;
+
     private ICityPicker mCityPicker;
     private IForecastViewer mForecastViewer;
-    private ICityPickedFeedback mCityPickerExternalFeedback;
 
     private Set<LocationData> mKnownPlaces;
     private Map<LocationData, PlaceForecast> mForecasts;

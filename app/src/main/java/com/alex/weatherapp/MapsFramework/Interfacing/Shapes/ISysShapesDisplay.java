@@ -1,5 +1,6 @@
 package com.alex.weatherapp.MapsFramework.Interfacing.Shapes;
 
+import com.alex.weatherapp.LoadingSystem.GeolookupRequest.LocationData;
 import com.alex.weatherapp.MapsFramework.Interfacing.ISysInterface;
 import com.alex.weatherapp.MapsFramework.MapVisuals.Markers.PlaceData;
 import com.alex.weatherapp.MapsFramework.MapVisuals.Shapes.CircularRegionData;
@@ -36,4 +37,6 @@ public interface ISysShapesDisplay extends ISysInterface {
     void removeInfoMarkers();
     void addInfoMarker(PlaceData markerData);
     boolean removeInfoMarekr(PlaceData markerData);
+
+    void moveAndZoomCamera(LocationData middleOfTheScreen, int zoomFactor);
 }

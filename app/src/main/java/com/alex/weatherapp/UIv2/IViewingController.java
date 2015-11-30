@@ -21,7 +21,18 @@ public interface IViewingController {
     void assignPlacePicker(ICityPicker placePicker);
     void assignForecastViewer(IForecastViewer forecastViewer);
 
+    /**
+     * Different constructs, built upon this controller might want to use interface
+     * for picking a place. One way is in allowing IViewingController implement it. But this
+     * picker's stuff is 'too fat', so that's more easy to just return ICity picker instance.
+     * Notice that this IViewingController decorates ICityPicker for intercepting user feedback.
+     * After processing it (feedback) e.g. showing a forecast, external feedback gets fired.
+     * @return
+     * @throws IllegalStateException
+     */
+    ICityPicker getAssignedPicker() throws IllegalStateException;
     void handleListOfPlaces(List<LocationData> placesToShow);
+
 
     /**
      * all forecast is being passed right after loader knows it (cached and then online, if
@@ -45,4 +56,5 @@ public interface IViewingController {
      * @throws IllegalArgumentException is thrown if list of places doesn't ave such a place.
      */
     PlaceForecast getForecast(LocationData place) throws IllegalStateException, IllegalArgumentException;
+    List<LocationData> getKnownPlaces();
 }

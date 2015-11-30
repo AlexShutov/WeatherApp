@@ -121,8 +121,6 @@ public class CityPicker implements ICityPicker {
 
     @Override
     public void saveState() {
-        SharedPreferences prefs = mActivity.getSharedPreferences(CITY_PICKER_PREFERENCES_NAME,
-                Context.MODE_PRIVATE);
         LocationData selected = null;
         try {
             selected = getPickedCity();
@@ -130,6 +128,17 @@ public class CityPicker implements ICityPicker {
             Logger.w("can't save last picked value, because there are no picker fragment");
             return;
         }
+        saveState(selected);
+    }
+
+    @Override
+    public void saveState(LocationData pickedLocation) {
+        if (null == pickedLocation){
+            return;
+        }
+        LocationData selected = pickedLocation;
+        SharedPreferences prefs = mActivity.getSharedPreferences(CITY_PICKER_PREFERENCES_NAME,
+                Context.MODE_PRIVATE);
         Logger.d("Saving last picked city");
         SharedPreferences.Editor editor = prefs.edit();
         editor.putString(LAST_PICKED_CITY_NAME, selected.getmPlaceName());
@@ -199,6 +208,10 @@ public class CityPicker implements ICityPicker {
     @Override
     public void setFeedback(ICityPickedFeedback feedbackImpl) {
         mFeedback = feedbackImpl;
+    }
+    @Override
+    public ICityPickedFeedback getFeedback() {
+        return mFeedback;
     }
 
     @Override

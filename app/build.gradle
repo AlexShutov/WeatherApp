@@ -26,9 +26,9 @@ dependencies {
     compile files ('gson-2.3.1.jar')
     compile files('retrofit-2.0.0-beta1.jar')
 
-  //  compile 'com.squareup.retrofit:retrofit:2.0.0-beta1'
+    //  compile 'com.squareup.retrofit:retrofit:2.0.0-beta1'
     compile 'com.squareup.retrofit:converter-gson:2.0.0-beta1'
-  //  compile 'com.squareup.okhttp:okhttp:2.0.0'
+    //  compile 'com.squareup.okhttp:okhttp:2.0.0'
 
     compile 'com.android.support:appcompat-v7:22.2.0'
 }

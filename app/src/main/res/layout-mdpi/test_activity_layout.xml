@@ -3,36 +3,44 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="New Text"
-        android:id="@+id/idc_ta_text_msg"
-        android:gravity="center" />
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="New Button"
-        android:id="@+id/idc_ta_btn_test"
-        android:layout_gravity="center_horizontal" />
-
     <LinearLayout
         android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:weightSum="1">
 
-        <Button
+        <TextView
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="test1"
-            android:id="@+id/idc_ta_btn_test1" />
+            android:layout_height="match_parent"
+            android:text="New Text"
+            android:id="@+id/idc_ta_text_msg"
+            android:gravity="center"
+            android:layout_weight="1.02" />
 
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="test2"
-            android:id="@+id/idc_ta_btn_test2" />
+        <RelativeLayout
+            android:layout_width="242dp"
+            android:layout_height="wrap_content">
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="enable map"
+                android:id="@+id/idc_ta_enable_map"
+                android:layout_alignParentTop="true"
+                android:layout_toLeftOf="@+id/idc_ta_disable_map"
+                android:layout_toStartOf="@+id/idc_ta_disable_map" />
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="disable map"
+                android:id="@+id/idc_ta_disable_map"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentEnd="true" />
+
+        </RelativeLayout>
+
     </LinearLayout>
 
     <FrameLayout
@@ -55,10 +63,9 @@
         android:layout_height="wrap_content"
         android:id="@+id/idc_ta_short_forecast_frame_3" />
 
-    <fragment
-        class="com.google.android.gms.maps.SupportMapFragment"
-        android:id="@+id/idc_ta_map"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        android:id="@+id/idc_ta_second_map"></FrameLayout>
 
 </LinearLayout>

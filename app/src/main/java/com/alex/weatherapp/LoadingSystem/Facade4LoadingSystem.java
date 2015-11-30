@@ -34,8 +34,8 @@ public class Facade4LoadingSystem implements ILoadingFacade, INetStateListenerFe
         public ModeSwitchState(){
             isOffline = true;
         }
-        /** TODO: now network just returns null and is ignored, but to that point amlmost all
-         * TODO: local data is retrive, becase db works much faster */
+        /** TODO: now network just returns null and is ignored, but to that point almost all
+         * TODO: local data is being retrived, because db works much faster */
         public boolean switchedDuringExecution;
         public boolean goneOffline;
         public boolean isOffline;

@@ -26,6 +26,9 @@ import com.alex.weatherapp.MapsFramework.MapVisuals.Shapes.ShapeData;
 import com.alex.weatherapp.MapsFramework.MapVisuals.Shapes.ShapeProjection;
 import com.alex.weatherapp.MapsFramework.MapVisuals.Shapes.ShapeProjector;
 import com.alex.weatherapp.Utils.Logger;
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 
@@ -397,6 +400,15 @@ public class ShapesDisplayAdapter extends UserAdapterBase implements ISysShapesD
             }
         }
         return isFound;
+    }
+
+    @Override
+    public void moveAndZoomCamera(LocationData middleOfTheScreen, int zoomFactor) {
+        GoogleMap map = getFacade().getAssignedMap();
+        LatLng center = new LatLng(middleOfTheScreen.getLat(), middleOfTheScreen.getLon());
+        CameraUpdate newCamera = CameraUpdateFactory
+                .newLatLngZoom(center, zoomFactor);
+        map.moveCamera(newCamera);
     }
 
     @Override

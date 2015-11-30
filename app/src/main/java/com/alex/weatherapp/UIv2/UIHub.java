@@ -30,106 +30,110 @@ import java.util.List;
 /**
  * Created by Alex on 24.11.2015.
  */
-public class AppHub implements IView {
-    public AppHub(){
+public class UIHub implements IView {
+    public UIHub(){
+        mDefaultUIController = null;
+        mUIController = null;
+    }
+
+    /**
+     * Defines it own way for initializing viewing controller and add different
+     * controllers in composite controller, if you must. Initializer instance is passed
+     * during UIHub creation, but controller may be changed when needed.
+     */
+    public interface IViewingControllerInitializer {
+        /**
+        * When this interface is user, UIHub is already having ui items set and picked (spinner and
+        * forecast viewer), so there are two options- whether leave it be, or add some other stuff.
+                * Do nothing in a first place, default controller will be created based on passed picker and
+        * forecast viewer, but if you want to add something, perhaps, alter map behaviour, use
+        * mainUIController instance by adding it to result composite controller.
+         * */
+        IViewingController createViewingController(IViewingController mainUIController);
+    }
+    private class DefaultControllerCreator implements IViewingControllerInitializer{
+        @Override
+        public IViewingController createViewingController(IViewingController mainUIController) {
+            IViewingController uiController = new ViewingController();
+            uiController.assignForecastViewer(mForecastViewer);
+            uiController.assignPlacePicker(mCityPicker);
+            return uiController;
+        }
+    }
+    public static class MapEnchancedControllerCreator implements IViewingControllerInitializer{
+        public MapEnchancedControllerCreator(){ }
+        @Override
+        public IViewingController createViewingController(IViewingController mainUIController) {
+            IViewingController uiController = mainUIController;
+            NotifyingComposite viewingComposite = new NotifyingComposite();
+            viewingComposite.addController(uiController);
+            viewingComposite.setMasterController(uiController);
+            if (null == mapIFace || null == activity){
+                Logger.e("Can't create map viewer because wherther ISysShapesDisplay or" +
+                        " Activity reference is null, switching to default controller");
+                return uiController;
+            }
+            MapViewer mapViewer = new MapViewer();
+            mapViewer.setMapInterface(mapIFace);
+            mapViewer.setActivity(activity);
+            ViewingController mapController = new ViewingController();
+            mapController.assignPlacePicker(mapViewer);
+            mapController.assignForecastViewer(mapViewer);
+            mapViewer.setViewingController(mapController);
+            viewingComposite.addController(mapController);
+            DummyViewingController dummy = new DummyViewingController("Dummy controller");
+            viewingComposite.addController(dummy);
+            return viewingComposite;
+        }
+        public void setMapIFace(ISysShapesDisplay mapIFace){
+            this.mapIFace = mapIFace;
+        }
+        public void setActivity(Activity activity){
+            this.activity = activity;
+        }
+
+        ISysShapesDisplay mapIFace;
+        Activity activity;
     }
 
     public void init(Activity activity,
-                     GoogleMap map,
+
                      ICityPicker cityPicker,
                      IForecastViewer forecastViewer){
         mActivity = activity;
         mIsRefreshRequired = true;
+        mIsPresenterConnected = false;
         initIViewInheritage();
-        initMapFacade(map);
 
         mForecastViewer = forecastViewer;
         mCityPicker = cityPicker;
         mCityPicker.setActivity(mActivity);
         mCityPicker.setFeedback(mCityFeedback);
 
-        mViewingController = new ViewingController();
-        mViewingController.assignForecastViewer(mForecastViewer);
-        mViewingController.assignPlacePicker(mCityPicker);
 
-        fillTestCities();
-        showTestForecast();
+        /** create default ui controller */
+        IViewingControllerInitializer vci = new DefaultControllerCreator();
+        mDefaultUIController = vci.createViewingController(null);
+        mUIController = mDefaultUIController;
+
+        // fillTestCities();
+       // showTestForecast();
         //test();
     }
 
-    /** Some stuff for testing */
-    static int placeCnt= 0;
-    private void fillTestCities(){
-        ArrayList<LocationData> cities = new ArrayList<>();
-        LocationData l =  new LocationData(0.0f, 0.0f, "Place 1");
-        cities.add(l);
-        l = new LocationData(666.0f, 666.0f, "The hell");
-        cities.add(l);
-
-        placeCnt = 2;
-        for (int i = 0; i < 10; ++i){
-            String name = "Place " + String.valueOf(placeCnt);
-            LocationData placeN = new LocationData( 47.0f + placeCnt,47.0f + placeCnt, name);
-            cities.add(placeN);
-            placeCnt++;
-        }
-        mViewingController.handleListOfPlaces(cities);
-        //mCityPicker.setCities(cities);
-        //mCityPicker.refresh();
+    public void initEnchancedController(IViewingControllerInitializer initializer){
+        if (null == initializer) return;
+        mUIController = initializer.createViewingController(mDefaultUIController);
     }
-    public void test(){
-        showMsg("Test");
-        CircularRegionData circle = new CircularRegionData(new LatLng(37.4318, -122.0840), 400);
-        circle.setShapeName("Added_circle");
-        mMapIface.addCircularArea(circle);
-        float lon = -122.1040f;
-
-        RectRegionData rect = new RectRegionData();
-        rect.setShapeName("rect1");
-        rect.setRightBottom(new LatLng(37.4169, -122.0890));
-        rect.setTopLeft(new LatLng(37.4269, -122.0790));
-        mMapIface.addRectangularArea(rect);
-
-        rect = new RectRegionData();
-        rect.setShapeName("rect2");
-        rect.setTopLeft(new LatLng(37.4269, -122.0890));
-        rect.setRightBottom(new LatLng(37.4169, -122.10));
-        mMapIface.addRectangularArea(rect);
-
-        circle = new CircularRegionData(new LatLng(37.4318, -122.0940), 400);
-        circle.setShapeName("Circle");
-        mMapIface.addCircularArea(circle);
-
-        LocationData tmpLoc = new LocationData(37.4218, -122.0840, "Some place");
-        PlaceData tmpPlace = new PlaceData(tmpLoc);
-        //dataFamily.addEntity(tmpPlace);
-        tmpPlace.setMarkerType(PlaceData.MarkerType.BitmapIcon);
-        tmpPlace.setIsDraggable(true);
-        List<PlaceData> info = new ArrayList<>();
-        info.add(tmpPlace);
-        mMapIface.addInfoMarker(tmpPlace);
-        PlaceData t2 = new PlaceData(tmpPlace);
-        //mMapIface.removeInfoMarekr(t2);
-        mMapIface.selectShape("Circle", true);
-        mMapIface.deselectShape("Circle");
+    public void switchToDefaultUIController(){
+        mUIController.setOnCityPickedFeedback(null);
+        mUIController = mDefaultUIController;
     }
-    public void test1(){
-        String name = "Place " + String.valueOf(placeCnt);
-        LocationData placeN = new LocationData( 47.0f + placeCnt,47.0f + placeCnt, name);
-        mCityPicker.addCity(placeN);
-        placeCnt++;
-        mPresenter.addNewPlace(placeN);
-        mPresenter.getListOfSavedPlaces();
-    }
-    public void test2(){
-        String name = "Place " + String.valueOf(placeCnt-1);
-        LocationData placeN = new LocationData( 47.0f + placeCnt-1,47.0f + placeCnt-1, name);
-        //mCityPicker.removeCity(placeN);
-        showMsg(mCityPicker.getPickedCity().getmPlaceName());
-        mCityPicker.pickCity(placeN);
 
-        //mCityPicker.removeCity("The hell");
+    public IViewingController getUIController(){
+        return mUIController;
     }
+
     private Forecast.DayForecast copy(Forecast.DayForecast df){
         Forecast.DayForecast tmp = new Forecast.DayForecast();
         tmp.conditions = df.conditions;
@@ -139,40 +143,13 @@ public class AppHub implements IView {
         tmp.year = df.year;
         return tmp;
     }
-    public void showTestForecast(){
-        Forecast.DayForecast df = new Forecast.DayForecast();
-        df.conditions = "Day 1. Rise and shine";
-        df.tempLow= 0;
-        df.tempHigh = 10;
-        df.dayOfYear = 200;
-        df.year = 2015;
-        Forecast f = new Forecast();
-        f.mDayForecasts.add(df);
-        Forecast.DayForecast tmp = copy(df);
-        tmp.conditions = "Day 2.";
-        f.mDayForecasts.add(tmp);
-        tmp = copy(df);
-        tmp.conditions = "Day 3.";
-        f.mDayForecasts.add(tmp);
-        mForecastViewer.showForecast(f);
-    }
-
     /** MVP- inherited and related stuff*/
     private void initIViewInheritage(){
         mPresenter = null;
         mIsPresenterConnected = false;
         mIsUIReady = true;
     }
-    private void initMapFacade(GoogleMap map){
-        mMapFacade = new MapFacade(map);
-        Deployer deployer = new Deployer();
-        deployer.setFacade(mMapFacade);
-        ShapesAndMarkersBehaviour behaviour = new ShapesAndMarkersBehaviour();
-        behaviour.activate(mMapFacade);
-        behaviour.setFeedbackInterface(mMapFeedback);
-        mMapIface = behaviour.getUserInterface();
 
-    }
 
     public void showPopup(String msg) {
         Toast.makeText(mActivity, msg, Toast.LENGTH_SHORT).show();
@@ -183,7 +160,7 @@ public class AppHub implements IView {
      */
     public void pause() {
         mPresenter.disconnectView(this);
-        mMapFacade.suspend();
+        //mMapFacade.suspend();
         mCityPicker.saveState();
         mIsRefreshRequired = true;
     }
@@ -208,8 +185,8 @@ public class AppHub implements IView {
                 }
             });
         }
-        mMapFacade.resume();
-        if (mIsRefreshRequired){
+        //mMapFacade.resume();
+        if (mIsRefreshRequired && presenter.isPresenterReady()){
             refreshContent();
             mIsRefreshRequired = false;
         }
@@ -217,7 +194,7 @@ public class AppHub implements IView {
 
     public void refreshContent(){
         mPresenter.getListOfSavedPlaces();
-        mCityPicker.restoreState();
+        mPresenter.acquireForecastsForAllPlaces();
     }
 
     /** Inherited from IView */
@@ -257,70 +234,39 @@ public class AppHub implements IView {
         @Override
         public void handleListOfSavedPlaces(List<LocationData> locations) {
             showPopup("acquired " + locations.size() + " places");
+            mUIController.handleListOfPlaces(locations);
         }
-
         @Override
         public void showPlacesForecasts(List<PlaceForecast> forecasts) {
-
         }
-
         @Override
         public void showPlaceForecast(PlaceForecast forecast) {
-
+            showMsg("Forecast received for: " + forecast.getPlace().getmPlaceName());
+            mUIController.handleIncomingForecast(forecast);
+            mCityPicker.restoreState();
         }
-
         @Override
         public void showStandalonePlaceForecast(PlaceForecast forecast) {
 
         }
-
         @Override
         public void onNewPlaceIsAddedToPlaceRegistry(LocationData placeInfo) {
 
         }
-
         @Override
         public void onAllPlacesRemoved() {
 
         }
-
         @Override
         public void showOnlineForecast(PlaceForecast forecast) {
 
         }
-
         @Override
         public void showGoogleGeolookup(LocationData placeLoc, String placeName) {
 
         }
     };
 
-    IFeedbackShapes mMapFeedback = new IFeedbackShapes() {
-        @Override
-        public void showServiceMessage(String msg) {
-            showPopup(msg);
-        }
-        @Override
-        public void onCircularRegionSelected(CircularRegionData data) {
-            showMsg("Circle is selected: " + data.getShapeName());
-        }
-        @Override
-        public void onRectRegionSelected(RectRegionData data) {
-            showMsg("Rectagle selected: " + data.getShapeName());
-        }
-        @Override
-        public void onNothingSelected() {
-            showMsg("nothing is selected");
-        }
-        @Override
-        public void onNewPlacePinned(LocationData place) {
-            showPopup("new chosen locaton: (" + place.getLat() + ", " + place.getLon() + ")");
-        }
-        @Override
-        public void onInfoMarkerClick(PlaceData infoMarker) {
-            showMsg("Info marker is clicked: " + infoMarker.getLocation().getmPlaceName());
-        }
-    };
 
     ICityPickedFeedback mCityFeedback = new ICityPickedFeedback() {
         @Override
@@ -330,14 +276,10 @@ public class AppHub implements IView {
     };
 
     private Activity mActivity;
-    private MapFacade mMapFacade;
     private ICityPicker mCityPicker;
     private IForecastViewer mForecastViewer;
-
-    private IViewingController mViewingController;
-
-    private ISysShapesDisplay mMapIface;
-
+    private IViewingController mDefaultUIController;
+    private IViewingController mUIController;
     private IPresenter mPresenter;
     private boolean mIsRefreshRequired;
     private boolean mIsPresenterConnected;

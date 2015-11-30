@@ -1,9 +1,12 @@
 package com.alex.weatherapp.UIv2.ForecastViewer;
 
 import android.app.Activity;
+import android.app.FragmentManager;
+import android.widget.FrameLayout;
 
 import com.alex.weatherapp.LoadingSystem.ForecastRequest.Forecast;
 import com.alex.weatherapp.UI.PlaceForecastViewer.IForecastViewer;
+import com.alex.weatherapp.UIv2.TestActivity;
 import com.alex.weatherapp.Utils.Logger;
 
 import java.util.ArrayList;
@@ -75,11 +78,23 @@ public class SimpleForecastViewer implements IForecastViewer {
         DayForecastSimpleViewer.showDayForecast(dayForecastorecast, true, holder, mActivity);
     }
 
+    /**
+     * show forecast and clear frames for day forecasts if
+     * @param forecast
+     */
     @Override
     public void showForecast(Forecast forecast) {
         int nForecasts = forecast.mDayForecasts.size();
         int nFrames = mFrameResourcesIDs.size();
         int i = 0;
+        if (nForecasts == 0){
+            for (; i< nFrames; ++i){
+                int frameID = mFrameResourcesIDs.get(i);
+                FrameLayout fl = (FrameLayout) mActivity.findViewById(frameID);
+                fl.removeAllViews();
+            }
+            i = 0;
+        }
         while (i < nForecasts && i < nFrames) {
             boolean isBig = i == 0;
             int frameID = mFrameResourcesIDs.get(i);

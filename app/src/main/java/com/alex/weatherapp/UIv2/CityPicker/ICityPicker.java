@@ -24,6 +24,7 @@ public interface ICityPicker extends ICityPickerChannel {
     LocationData getPickedCity() throws IllegalStateException;
     /** Context will be set in subclass, call in onPause and onCreate */
     void saveState();
+    void saveState(LocationData pickedLocation);
     void restoreState();
 
     /** forces implementation to update its ui due to
@@ -35,6 +36,7 @@ public interface ICityPicker extends ICityPickerChannel {
      * when user would have picked some city
      */
     void setFeedback(ICityPickedFeedback feedbackImpl);
+    ICityPickedFeedback getFeedback();
 
     /**
      * Set connection with actual ui (interface, implemented

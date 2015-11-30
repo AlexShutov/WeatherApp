@@ -171,6 +171,9 @@ public class CityPickerFragment extends Fragment {
     }
 
     public void setSelected(LocationData place){
+        if (null == mPicker){
+            return;
+        }
         mSelected = place;
         if (null != mSelected && mCitiesToShow.contains(mSelected)){
             mPicker.setSelection(mAdapter.getPosition(mSelected));
