@@ -131,6 +131,12 @@ public class DummyViewingController implements IViewingController {
     }
 
     @Override
+    public IForecastViewer getAssignedForecastViewer() throws IllegalStateException {
+        logMethod("IForecastViewer getAssignedForecastViewer()");
+        return null;
+    }
+
+    @Override
     public void handleListOfPlaces(List<LocationData> placesToShow) {
         logMethod("void handleListOfPlaces(List<LocationData> placesToShow)");
     }
@@ -158,11 +164,23 @@ public class DummyViewingController implements IViewingController {
         return null;
     }
 
+
+    @Override
+    public void saveState() {
+        logMethod("void saveState()");
+    }
+    @Override
+    public void restoreState() {
+        logMethod("void restoreState()");
+    }
+
+    @Override
+    public void clear() { logMethod("void clear() {"); }
+
     private void logMethod(String methodName){
         String msg = "Dummy viewing controller " + mControllerName + ". Called " + methodName;
         Logger.i(msg);
     }
-
     private void logPickedCity(LocationData city){
         Logger.i("Dummy viewing controller " + mControllerName +"City picked: " +
                 city.getmPlaceName());

@@ -1,5 +1,7 @@
 package com.alex.weatherapp.UIv2;
 
+import android.content.Context;
+
 import com.alex.weatherapp.LoadingSystem.GeolookupRequest.LocationData;
 import com.alex.weatherapp.LoadingSystem.PlaceForecast;
 import com.alex.weatherapp.UI.PlaceForecastViewer.IForecastViewer;
@@ -109,24 +111,45 @@ public class NotifyingComposite implements IViewingController {
         checkMasterController();
         getMasterController().assignForecastViewer(forecastViewer);
     }
-
     @Override
     public ICityPicker getAssignedPicker() throws IllegalStateException {
         checkMasterController();
         return getMasterController().getAssignedPicker();
     }
-
+    @Override
+    public IForecastViewer getAssignedForecastViewer() throws IllegalStateException {
+        checkMasterController();
+        return getMasterController().getAssignedForecastViewer();
+    }
     @Override
     public void handleListOfPlaces(List<LocationData> placesToShow) {
         for (BoundUnit bu : mBoundUnits){
             bu.mController.handleListOfPlaces(placesToShow);
         }
     }
-
     @Override
     public void handleIncomingForecast(PlaceForecast forecast) {
         for (BoundUnit bu : mBoundUnits){
             bu.mController.handleIncomingForecast(forecast);
+        }
+    }
+    @Override
+    public void saveState() {
+        for (BoundUnit u : mBoundUnits){
+            u.mController.saveState();
+        }
+    }
+    @Override
+    public void restoreState() {
+        for (BoundUnit u : mBoundUnits){
+            u.mController.restoreState();
+        }
+    }
+
+    @Override
+    public void clear() {
+        for (BoundUnit u : mBoundUnits){
+            u.mController.clear();
         }
     }
 

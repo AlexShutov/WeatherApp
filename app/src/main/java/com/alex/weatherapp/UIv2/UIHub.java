@@ -9,20 +9,11 @@ import com.alex.weatherapp.LoadingSystem.PlaceForecast;
 import com.alex.weatherapp.MVP.IPresenter;
 import com.alex.weatherapp.MVP.IView;
 import com.alex.weatherapp.MVP.IViewContract;
-import com.alex.weatherapp.MapsFramework.Deployment.Deployer;
-import com.alex.weatherapp.MapsFramework.Interfacing.Shapes.IFeedbackShapes;
 import com.alex.weatherapp.MapsFramework.Interfacing.Shapes.ISysShapesDisplay;
-import com.alex.weatherapp.MapsFramework.Interfacing.Shapes.ShapesAndMarkersBehaviour;
-import com.alex.weatherapp.MapsFramework.MapFacade;
-import com.alex.weatherapp.MapsFramework.MapVisuals.Markers.PlaceData;
-import com.alex.weatherapp.MapsFramework.MapVisuals.Shapes.CircularRegionData;
-import com.alex.weatherapp.MapsFramework.MapVisuals.Shapes.RectRegionData;
 import com.alex.weatherapp.UI.PlaceForecastViewer.IForecastViewer;
 import com.alex.weatherapp.UIv2.CityPicker.ICityPickedFeedback;
 import com.alex.weatherapp.UIv2.CityPicker.ICityPicker;
 import com.alex.weatherapp.Utils.Logger;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,9 +22,8 @@ import java.util.List;
  * Created by Alex on 24.11.2015.
  */
 public class UIHub implements IView {
-    public UIHub(){
-        mDefaultUIController = null;
-        mUIController = null;
+    interface IOnLoadDoneCallback{
+        void onLoadDone();
     }
 
     /**
@@ -76,6 +66,9 @@ public class UIHub implements IView {
             MapViewer mapViewer = new MapViewer();
             mapViewer.setMapInterface(mapIFace);
             mapViewer.setActivity(activity);
+            if (null != this.placeRepetitiveClickCallback){
+                mapViewer.setEditCallback(placeRepetitiveClickCallback);
+            }
             ViewingController mapController = new ViewingController();
             mapController.assignPlacePicker(mapViewer);
             mapController.assignForecastViewer(mapViewer);
@@ -91,17 +84,28 @@ public class UIHub implements IView {
         public void setActivity(Activity activity){
             this.activity = activity;
         }
+        public void setPlaceRepetitiveClickCallback(MapViewer.IOnEditCallback cb){
+            placeRepetitiveClickCallback = cb;
+        }
 
+        MapViewer.IOnEditCallback placeRepetitiveClickCallback;
         ISysShapesDisplay mapIFace;
         Activity activity;
     }
 
-    public void init(Activity activity,
+    public UIHub(){
+        mDefaultUIController = null;
+        mUIController = null;
+        mOnLoadDoneCallback = null;
+    }
 
+    boolean mRefreshOnInit;
+    public void setRefreshOnInit(boolean refresh){ mRefreshOnInit = refresh;}
+    public void init(Activity activity,
                      ICityPicker cityPicker,
-                     IForecastViewer forecastViewer){
+                     IForecastViewer forecastViewer,
+                     boolean refreshOnInit){
         mActivity = activity;
-        mIsRefreshRequired = true;
         mIsPresenterConnected = false;
         initIViewInheritage();
 
@@ -109,16 +113,12 @@ public class UIHub implements IView {
         mCityPicker = cityPicker;
         mCityPicker.setActivity(mActivity);
         mCityPicker.setFeedback(mCityFeedback);
-
+        mRefreshOnInit = refreshOnInit;
 
         /** create default ui controller */
         IViewingControllerInitializer vci = new DefaultControllerCreator();
         mDefaultUIController = vci.createViewingController(null);
         mUIController = mDefaultUIController;
-
-        // fillTestCities();
-       // showTestForecast();
-        //test();
     }
 
     public void initEnchancedController(IViewingControllerInitializer initializer){
@@ -150,7 +150,6 @@ public class UIHub implements IView {
         mIsUIReady = true;
     }
 
-
     public void showPopup(String msg) {
         Toast.makeText(mActivity, msg, Toast.LENGTH_SHORT).show();
     }
@@ -159,10 +158,10 @@ public class UIHub implements IView {
      * Mimics Activity's lifecycle methods
      */
     public void pause() {
+        mUIController.saveState();
         mPresenter.disconnectView(this);
         //mMapFacade.suspend();
         mCityPicker.saveState();
-        mIsRefreshRequired = true;
     }
     public void resume(IPresenter presenter){
         mPresenter = presenter;
@@ -170,6 +169,7 @@ public class UIHub implements IView {
         if (mPresenter.isPresenterReady()){
             // add some stuff with mPresenter involved
             showPopup("Presenter is connected in onResume");
+            if (mRefreshOnInit) refreshContent();
         } else {
             mPresenter.setPresenterReadyCallback(new IPresenter.IPresenterReady() {
                 @Override
@@ -178,18 +178,11 @@ public class UIHub implements IView {
                     mPresenter = presenter;
                     mIsPresenterConnected = true;
                     showPopup("presenter is first created");
-                    if (mIsRefreshRequired) {
-                        refreshContent();
-                        mIsRefreshRequired = false;
-                    }
+                    if (mRefreshOnInit) refreshContent();
                 }
             });
         }
-        //mMapFacade.resume();
-        if (mIsRefreshRequired && presenter.isPresenterReady()){
-            refreshContent();
-            mIsRefreshRequired = false;
-        }
+        //mMapFacade.resume()
     }
 
     public void refreshContent(){
@@ -235,6 +228,7 @@ public class UIHub implements IView {
         public void handleListOfSavedPlaces(List<LocationData> locations) {
             showPopup("acquired " + locations.size() + " places");
             mUIController.handleListOfPlaces(locations);
+            mDefaultUIController.handleListOfPlaces(locations);
         }
         @Override
         public void showPlacesForecasts(List<PlaceForecast> forecasts) {
@@ -243,7 +237,7 @@ public class UIHub implements IView {
         public void showPlaceForecast(PlaceForecast forecast) {
             showMsg("Forecast received for: " + forecast.getPlace().getmPlaceName());
             mUIController.handleIncomingForecast(forecast);
-            mCityPicker.restoreState();
+            //mCityPicker.restoreState();
         }
         @Override
         public void showStandalonePlaceForecast(PlaceForecast forecast) {
@@ -251,11 +245,15 @@ public class UIHub implements IView {
         }
         @Override
         public void onNewPlaceIsAddedToPlaceRegistry(LocationData placeInfo) {
-
+            refreshContent();
         }
+
+        /**
+         * Even thought db has no saved places, ui still continues to show them
+         */
         @Override
         public void onAllPlacesRemoved() {
-
+            mUIController.clear();
         }
         @Override
         public void showOnlineForecast(PlaceForecast forecast) {
@@ -268,12 +266,17 @@ public class UIHub implements IView {
     };
 
 
+
     ICityPickedFeedback mCityFeedback = new ICityPickedFeedback() {
         @Override
         public void onCityPicked(LocationData pickedCity) {
-
+            if (null != mOnLoadDoneCallback)  mOnLoadDoneCallback.onLoadDone();
         }
     };
+
+    public void setOnLoadDoneCallback(IOnLoadDoneCallback cb){
+        mOnLoadDoneCallback = cb;
+    }
 
     private Activity mActivity;
     private ICityPicker mCityPicker;
@@ -281,8 +284,9 @@ public class UIHub implements IView {
     private IViewingController mDefaultUIController;
     private IViewingController mUIController;
     private IPresenter mPresenter;
-    private boolean mIsRefreshRequired;
     private boolean mIsPresenterConnected;
     private boolean mIsUIReady;
+
+    private IOnLoadDoneCallback mOnLoadDoneCallback;
 
 }

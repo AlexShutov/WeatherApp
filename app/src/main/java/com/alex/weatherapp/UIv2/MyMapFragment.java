@@ -5,6 +5,7 @@ import android.os.Bundle;
 
 import com.alex.weatherapp.Utils.Logger;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMapOptions;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 
@@ -16,15 +17,25 @@ public class MyMapFragment extends MapFragment {
     public interface IOnMapReady{
         void acceptMapInstance(GoogleMap map);
     }
+    public static MyMapFragment newInstance(GoogleMapOptions options) {
+        MyMapFragment var1 = new MyMapFragment();
+        Bundle var2 = new Bundle();
+        var2.putParcelable("MapOptions", options);
+        var1.setArguments(var2);
+        return var1;
+    }
     public MyMapFragment(){
+        super();
         map = null;
         activity = null;
         isMapSentToHolder = false;
     }
 
+
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        Logger.w("TRACE: MyMapFragment: onActivityCreated()");
         activity = getActivity();
         if (!(activity instanceof IOnMapReady)){
             throw new IllegalStateException("Activity must implement IOnMapReady");
@@ -48,9 +59,11 @@ public class MyMapFragment extends MapFragment {
 
     private void sendMapToActivity(){
         if (null != map && !isMapSentToHolder){
+            Logger.w("TRACE: MyMapFragment: sendMapToActivity()");
             ((IOnMapReady)activity).acceptMapInstance(map);
             isMapSentToHolder = true;
             activity = null;
+            map = null;
         }
     }
 

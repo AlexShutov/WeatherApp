@@ -2,13 +2,13 @@ package com.alex.weatherapp.UIv2;
 
 
 import android.app.Activity;
-import android.graphics.drawable.shapes.Shape;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.location.Location;
 import android.widget.Toast;
 
 import com.alex.weatherapp.LoadingSystem.ForecastRequest.Forecast;
 import com.alex.weatherapp.LoadingSystem.GeolookupRequest.LocationData;
-import com.alex.weatherapp.LoadingSystem.WUndergroundLayer.WUndergroundGeolookupData;
 import com.alex.weatherapp.MapsFramework.Interfacing.Shapes.IFeedbackShapes;
 import com.alex.weatherapp.MapsFramework.Interfacing.Shapes.ISysShapesDisplay;
 import com.alex.weatherapp.MapsFramework.MapVisuals.Markers.PlaceData;
@@ -29,22 +29,39 @@ import java.util.TreeMap;
  */
 public class MapViewer implements IMapViewer {
     private static final int CONSTANT_WEATHER_RADII = 20000;
+
+    /** We need to be able to remove saved place, one way to do that is ask user about it
+     * when he or she selects the same marker again (not area around marker, just marker,
+     * because area might be tapped aidntly
+     */
+    interface IOnEditCallback {
+        void handleRepeatingSelection(LocationData place);
+        void handleFreePlace(LocationData place);
+        void handleSelectionOfSavedPlace(LocationData selectedPlace);
+    }
     public MapViewer(){
     }
+
+    /**
+     * All references are null by default, those are cleared here for not to to forget
+     */
     private void init(){
         mMapIFace = null;
         /** gonna be rewritten anyway */
         mActivity = null;
         mPickedCity = null;
-        mSetFeedback = null;
+        mPickingFeedback = null;
         mViewingController = null;
         mCenterOfLastSelectedArea = null;
+        /** repetitive marker clicks */
+        mLastChoisenSavedPlace = null;
+        mSelectedFreePlace = null;
+        mEditCallback = null;
     }
     public void setMapInterface(ISysShapesDisplay mapInterface){
         mMapIFace = mapInterface;
         mMapIFace.setFeedbackInterface(mMapFeedback);
     }
-
     @Override
     public void setViewingController(IViewingController viewingController) {
         mViewingController = viewingController;
@@ -68,15 +85,8 @@ public class MapViewer implements IMapViewer {
     public void setCities(ArrayList<LocationData> places) {
         Logger.i("MapViewer.setcities() is called");
         final String areaNamePrefix = "Area for: ";
-        if (null != mConstantWeatherAreas){
-            for (LocationData ld : mConstantWeatherAreas.keySet()){
-                String areaName = areaNamePrefix + ld.getmPlaceName();
-                mMapIFace.removeShape(areaName);
-            }
-            mConstantWeatherAreas.clear();
-        }else {
-            mConstantWeatherAreas = new TreeMap<>();
-        }
+        mConstantWeatherAreas = new TreeMap<>();
+        mMapIFace.removeAllShapes();
         mMapIFace.removeInfoMarkers();
         for (LocationData place : places){
             PlaceData markerData = new PlaceData(place);
@@ -104,6 +114,9 @@ public class MapViewer implements IMapViewer {
     @Override
     public void clear() {
         setViewingController(null);
+        mConstantWeatherAreas.clear();
+        mMapIFace.removeAllShapes();
+        mMapIFace.removeInfoMarkers();
     }
     @Override
     public boolean isHaving(LocationData place) {
@@ -112,6 +125,10 @@ public class MapViewer implements IMapViewer {
     @Override
     public void pickCity(LocationData city) {
         mPickedCity = city;
+        mLastChoisenSavedPlace = city;
+        if (null != mEditCallback) {
+            mEditCallback.handleSelectionOfSavedPlace(city);
+        }
         Logger.i("MapViewer.pickCity("+ city.getmPlaceName() + ");");
         mMapIFace.moveAndZoomCamera(city, 9);
     }
@@ -119,6 +136,8 @@ public class MapViewer implements IMapViewer {
     public LocationData getPickedCity() throws IllegalStateException {
         return mPickedCity;
     }
+
+
 
     /**
      * The next three methods manages mapViewet's state and is used when MapViewer being
@@ -129,12 +148,49 @@ public class MapViewer implements IMapViewer {
      */
     @Override
     public void saveState() {
+        Logger.d("MapViewer.saveState() is called");
+        if (null != mSelectedFreePlace){
+            savePlaceToPrefs(mSelectedFreePlace, "SelectedFreePlace");
+        }
     }
     @Override
     public void saveState(LocationData pickedLocation) {
     }
     @Override
     public void restoreState() {
+        Logger.d("MapViewer.restoreState() is called");
+        LocationData freePlace = restorePlaceFromPrefs("SelectedFreePlace");
+        if (null == freePlace){
+            mSelectedFreePlace = null;
+        }else {
+            mMapIFace.mimicTap(freePlace);
+        }
+    }
+    private void savePlaceToPrefs(LocationData place, String placeName){
+        SharedPreferences prefs = mActivity.getPreferences(Context.MODE_PRIVATE);
+        String fieldName = placeName + "_name";
+        String fieldLat = placeName + "_lat";
+        String fieldLon = placeName + "_lon";
+        if (null == place){
+            prefs.edit().remove(fieldName).remove(fieldLat).remove(fieldLon).apply();
+            return;
+        }
+        prefs.edit().putString(fieldName, place.getmPlaceName())
+                .putFloat(fieldLat, (float) place.getLat())
+                .putFloat(fieldLon, (float)place.getLon()).apply();
+    }
+    private LocationData restorePlaceFromPrefs(String placeName){
+        SharedPreferences prefs = mActivity.getPreferences(Context.MODE_PRIVATE);
+        String fieldName = placeName + "_name";
+        String fieldLat = placeName + "_lat";
+        String fieldLon = placeName + "_lon";
+        if (!prefs.contains(fieldName)){
+            return null;
+        }
+        String name = prefs.getString(fieldName, "");
+        double lat = (double) prefs.getFloat(fieldLat, 0);
+        double lon = (double) prefs.getFloat(fieldLon, 0);
+        return new LocationData(lat, lon, name);
     }
     @Override
     public void refresh() {
@@ -142,7 +198,7 @@ public class MapViewer implements IMapViewer {
 
     @Override
     public void setFeedback(ICityPickedFeedback feedbackImpl) {
-        mSetFeedback = feedbackImpl;
+        mPickingFeedback = feedbackImpl;
     }
     @Override
     public ICityPickedFeedback getFeedback() {
@@ -172,23 +228,18 @@ public class MapViewer implements IMapViewer {
                 }
             }
             if (null != areaAround) {
-                if (null != mSetFeedback) {
-                    mSetFeedback.onCityPicked(areaAround);
+                if (null != mPickingFeedback) {
+                    mPickingFeedback.onCityPicked(areaAround);
                 }
             }
             mCenterOfLastSelectedArea = areaAround;
         }
-
         @Override
         public void onRectRegionSelected(RectRegionData data) {
-
         }
-
         @Override
         public void onNothingSelected() {
-
         }
-
         /**
          * Framework firstly notifies about shape selection, so we can use it for defining,
          * whether new place were selected, or not.
@@ -196,6 +247,10 @@ public class MapViewer implements IMapViewer {
          */
         @Override
         public void onNewPlacePinned(LocationData place) {
+            /** user must tap on saved place twice, tapping any other area clears last tapped
+             * saved place. So, marker, related to volatile place clears last tapped place
+             */
+            mLastChoisenSavedPlace = null;
             boolean isNew = false;
             if (null == mCenterOfLastSelectedArea){
                 isNew = true;
@@ -208,16 +263,30 @@ public class MapViewer implements IMapViewer {
             if (isNew) {
                 String msg = "new place is pinned: (" + place.getLat() + ", " + place.getLon() + ")";
                 Logger.i(msg);
+                mSelectedFreePlace = place;
+                if (null != mEditCallback) {
+                    mEditCallback.handleFreePlace(place);
+                }
                 if (null != mActivity) {
                     Toast.makeText(mActivity, msg, Toast.LENGTH_SHORT).show();
                 }
             }
         }
 
+        /** user may now observe any place on map, but this methods returns last saved place
+         * being being picked
+         * @return
+         */
+        LocationData getLastSelectedSavedPlace(){
+            return mLastChoisenSavedPlace;
+        }
         @Override
         public void onInfoMarkerClick(PlaceData infoMarker) {
-            if (null != mSetFeedback){
-                mSetFeedback.onCityPicked(infoMarker.getLocation());
+            if (null != mPickingFeedback){
+                LocationData place = infoMarker.getLocation();
+                checkWhetherPlaceIsPickedAgainAndProcessIfItIs(place);
+            } else {
+                Logger.e("Place picker feedback ICityPickedFeedback isn't set");
             }
         }
 
@@ -226,6 +295,46 @@ public class MapViewer implements IMapViewer {
             Toast.makeText(mActivity, msg, Toast.LENGTH_SHORT).show();
         }
     };
+    public void setEditCallback(IOnEditCallback cb){
+        mEditCallback = cb;
+    }
+    /** Map may have another markers, for example, weather stations locations, that's why we need
+     * a way for distinguishing them. For that MapViewer holds a link to its ViewingController,
+     * which, in turn, knows about all saved places. We look through them for defining whether
+     * clicked marker represent saved place
+     * @param place
+     * @return
+     */
+    private boolean checkWhetherClickedPlaceIsSavedOne(LocationData place){
+        boolean isSavedPlace = false;
+        if (mViewingController != null){
+            List<LocationData> savedPlaces = mViewingController.getKnownPlaces();
+            if (savedPlaces.contains(place)){
+                return true;
+            }
+        }
+        return false;
+    }
+    private void checkWhetherPlaceIsPickedAgainAndProcessIfItIs(LocationData place){
+        boolean isSavedPlace = checkWhetherClickedPlaceIsSavedOne(place);
+        if (isSavedPlace) {
+            Logger.d("Marker for saved place were clicked");
+            if (null != mLastChoisenSavedPlace &&
+                    mLastChoisenSavedPlace.equals(place)){
+                Logger.d("The same place being clicked repeatedly: " +
+                        place.getmPlaceName());
+                if (null != mEditCallback){
+                    mEditCallback.handleRepeatingSelection(place);
+                }
+            }
+            mPickingFeedback.onCityPicked(place);
+            mSelectedFreePlace = null;
+            if (null != mEditCallback) {
+                mEditCallback.handleSelectionOfSavedPlace(place);
+            }
+            mLastChoisenSavedPlace = place;
+        }
+    }
 
     /** Inherited from IForecastViewer */
     /** figure out the place and move camera to show it with zoom
@@ -260,13 +369,16 @@ public class MapViewer implements IMapViewer {
     public void onDaySelected(int position) {
     }
 
-
     private IViewingController mViewingController;
-    private ICityPickedFeedback mSetFeedback;
+    private ICityPickedFeedback mPickingFeedback;
     private ISysShapesDisplay mMapIFace;
     private LocationData mPickedCity;
     private Activity mActivity;
 
     private Map<LocationData, ShapeData> mConstantWeatherAreas;
     private LocationData mCenterOfLastSelectedArea;
+    /** repetitive marker selection support */
+    private LocationData mLastChoisenSavedPlace;
+    private LocationData mSelectedFreePlace;
+    IOnEditCallback mEditCallback;
 }

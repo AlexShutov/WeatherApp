@@ -22,7 +22,6 @@ public class MapFacade {
     }
     private void init(){
         mGMap = null;
-        mIsMapReady = false;
         mDataStore = new Community();
         mProjectionWarehouse = new ProjectionsWarehouse();
         mProjectionWarehouse.entangleWith(mDataStore);
@@ -88,7 +87,6 @@ public class MapFacade {
 
     public void setMap(GoogleMap map){
         mGMap = map;
-        mIsMapReady = (map == null);
     }
     public GoogleMap getAssignedMap(){ return mGMap;}
 
@@ -113,7 +111,6 @@ public class MapFacade {
      * mIsJustStarted solves that issue.
      */
     private boolean mIsJustStarted;
-    private boolean mIsMapReady;
     private GoogleMap mGMap;
     private SocketRack mSocketRack;
 

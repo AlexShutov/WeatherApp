@@ -62,6 +62,9 @@ public class ShapesAndMarkersBehaviour extends BehaviourBase {
                 FocusAndZoomReaction.newIsntance());
         IProjector singleMarkerProjector = new MarkerProjector();
         builder.setProjector(singleMarkerProjector);
+        PlaceData locationMarkerData = new PlaceData(new LocationData(37.4218, -122.0840));
+        locationMarkerData.setIsDraggable(true);
+        builder.addDataPiece(locationMarkerData);
         deployer.addFamilyBuilder(builder);
 
         /** Add info marker family. Info marker can show some info, location of weather

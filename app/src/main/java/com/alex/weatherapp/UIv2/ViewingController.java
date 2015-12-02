@@ -57,11 +57,21 @@ public class ViewingController implements IViewingController {
     @Override
     public ICityPicker getAssignedPicker() throws IllegalStateException {
         if (null == mCityPicker){
-            String msg = "Caller are trying to retrive unassigned ICityPicker";
+            String msg = "Caller are trying to return unassigned ICityPicker";
             Logger.w(msg);
             throw new IllegalStateException(msg);
         }
         return mCityPicker;
+    }
+
+    @Override
+    public IForecastViewer getAssignedForecastViewer() throws IllegalStateException {
+        if (null == mCityPicker){
+            String msg = "Caller are trying to return unassigned IForecastViewer";
+            Logger.w(msg);
+            throw new IllegalStateException(msg);
+        }
+        return mForecastViewer;
     }
 
     @Override
@@ -71,6 +81,7 @@ public class ViewingController implements IViewingController {
         } else {
             Logger.d("Showing list of places, total " + placesToShow.size() + " places");
         }
+        //mForecasts.clear();
         mKnownPlaces.clear();
         mKnownPlaces.addAll(placesToShow);
         ArrayList<LocationData> t = new ArrayList<>();
@@ -80,6 +91,7 @@ public class ViewingController implements IViewingController {
 
     @Override
     public void handleIncomingForecast(PlaceForecast forecast) {
+
         LocationData place = forecast.getPlace();
         boolean updatePlacePicker = false;
         if (!mKnownPlaces.contains(place)){
@@ -98,7 +110,9 @@ public class ViewingController implements IViewingController {
             places.addAll(mKnownPlaces);
             mCityPicker.setCities(places);
         }
+
         /** Forecast for picked city has arrived, update forecast viewer */
+
         LocationData currPicked = null;
         try {
             currPicked = mCityPicker.getPickedCity();
@@ -111,6 +125,7 @@ public class ViewingController implements IViewingController {
         /** in the case when current picked place is unknown because ui isn't rendered yet,
          * request picker to pick that place again and viewer to show forecast for that place
          */
+
         if (null == currPicked){
             Logger.w("UI isn't rendered, acquiring place and forecast update anyway");
             mCityPicker.pickCity(place);
@@ -144,10 +159,35 @@ public class ViewingController implements IViewingController {
     }
 
     @Override
+    public void clear() {
+        mKnownPlaces.clear();
+        mForecasts.clear();
+        mCityPicker.clear();
+        mForecastViewer.showForecast(new Forecast());
+    }
+
+    @Override
     public void setOnCityPickedFeedback(ICityPickedFeedback cityPickedFeedback) {
         mCityPickerExternalFeedback = cityPickedFeedback;
     }
 
+    @Override
+    public void saveState() {
+        if (null == mCityPicker){
+            Logger.e("Can't save picker's state, because it is null");
+        }else {
+            mCityPicker.saveState();
+        }
+    }
+
+    @Override
+    public void restoreState() {
+        if (null == mCityPicker){
+            Logger.e("Can't restore picker's state, because it is null");
+        }else {
+            mCityPicker.restoreState();
+        }
+    }
 
     /**
      * Here we accept place selected by user. Place picker will update itself, here we need

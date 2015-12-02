@@ -147,7 +147,14 @@ public class CityPickerFragment extends Fragment {
         cityPicker.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                Logger.i("Item selected: " + mAdapter.getItem(position).getmPlaceName());
+                if (mAdapter.isEmpty()){
+                    Logger.w("City picker. ArrayAdapter is empty");
+                    if (null != mOwner)
+                        mOwner.cityPicked(null);
+                    return;
+                } else {
+                    Logger.i("Item selected: " + mAdapter.getItem(position).getmPlaceName());
+                }
                 if (null != mOwner) {
                     LocationData pickedPlace = mAdapter.getItem(position);
                     mSelected = pickedPlace;
@@ -182,8 +189,17 @@ public class CityPickerFragment extends Fragment {
 
 
     public void setNewPlacesData(ArrayList<LocationData> newPlaces){
-        if (null ==mPicker){
+        if (null == mPicker){
             Logger.w("Null picker reference, aborting");
+            return;
+        }
+        if (newPlaces.isEmpty()){
+            mCitiesToShow.clear();
+            mAdapter = new LocationAdapter(getActivity(),
+                    android.R.layout.simple_spinner_item,
+                    mCitiesToShow);
+
+            mAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             return;
         }
         LocationData prevSelected = (LocationData) mPicker.getSelectedItem();
@@ -191,7 +207,7 @@ public class CityPickerFragment extends Fragment {
         mCitiesToShow.addAll(newPlaces);
         mAdapter.clear();
         mAdapter.addAll(mCitiesToShow);
-        if (mCitiesToShow.contains(prevSelected)){
+        if (mCitiesToShow.contains(prevSelected)) {
             int i = mCitiesToShow.indexOf(prevSelected);
             mPicker.setSelection(i);
         }

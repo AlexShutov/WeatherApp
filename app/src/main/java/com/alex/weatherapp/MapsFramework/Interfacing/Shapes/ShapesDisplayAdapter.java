@@ -8,6 +8,7 @@ import com.alex.weatherapp.MapsFramework.BehaviourRelated.Actions.MarkerClickAct
 import com.alex.weatherapp.MapsFramework.BehaviourRelated.Actions.MarkerEndDragAction;
 import com.alex.weatherapp.MapsFramework.BehaviourRelated.FocusAndZoomReaction;
 import com.alex.weatherapp.MapsFramework.BehaviourRelated.Projections.IProjector;
+import com.alex.weatherapp.MapsFramework.BehaviourRelated.SocketRack;
 import com.alex.weatherapp.MapsFramework.Containers.IEntityContainer;
 import com.alex.weatherapp.MapsFramework.Containers.ProjectionsWarehouse;
 import com.alex.weatherapp.MapsFramework.Deployment.Deployer;
@@ -175,7 +176,6 @@ public class ShapesDisplayAdapter extends UserAdapterBase implements ISysShapesD
     public ShapeData getShape(String shapeName) {
         MapFacade facade = getFacade();
         IEntityContainer dataCont = facade.getDataStore().getFamily(shapesFamily);
-        IEntityContainer projCont = (IEntityContainer) dataCont.getEntangled();
         ShapeData foundShape = null;
         for (IEntity e : dataCont.getEntities()){
             ShapeData s = (ShapeData) e;
@@ -409,6 +409,15 @@ public class ShapesDisplayAdapter extends UserAdapterBase implements ISysShapesD
         CameraUpdate newCamera = CameraUpdateFactory
                 .newLatLngZoom(center, zoomFactor);
         map.moveCamera(newCamera);
+    }
+
+    @Override
+    public void mimicTap(LocationData tapPoint) {
+        MapFacade facade = getFacade();
+        SocketRack sr = facade.getSocketRack();
+        MapTapAction tapAction = new MapTapAction();
+        tapAction.setTapPosition(new LatLng(tapPoint.getLat(), tapPoint.getLon()));
+        sr.reactTo(tapAction);
     }
 
     @Override

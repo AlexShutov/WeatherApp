@@ -1,5 +1,7 @@
 package com.alex.weatherapp.UIv2;
 
+import android.content.Context;
+
 import com.alex.weatherapp.LoadingSystem.GeolookupRequest.LocationData;
 import com.alex.weatherapp.LoadingSystem.PlaceForecast;
 import com.alex.weatherapp.UI.PlaceForecastViewer.IForecastViewer;
@@ -31,6 +33,7 @@ public interface IViewingController {
      * @throws IllegalStateException
      */
     ICityPicker getAssignedPicker() throws IllegalStateException;
+    IForecastViewer getAssignedForecastViewer() throws IllegalStateException;
     void handleListOfPlaces(List<LocationData> placesToShow);
 
 
@@ -46,6 +49,10 @@ public interface IViewingController {
      * @param cityPickedFeedback
      */
     void setOnCityPickedFeedback(ICityPickedFeedback cityPickedFeedback);
+
+    void saveState();
+    void restoreState();
+    void clear();
 
     /**
      * Get forecast for a known place.

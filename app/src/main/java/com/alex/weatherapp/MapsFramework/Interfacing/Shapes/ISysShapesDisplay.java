@@ -38,5 +38,7 @@ public interface ISysShapesDisplay extends ISysInterface {
     void addInfoMarker(PlaceData markerData);
     boolean removeInfoMarekr(PlaceData markerData);
 
+    void mimicTap(LocationData tapPoint);
+
     void moveAndZoomCamera(LocationData middleOfTheScreen, int zoomFactor);
 }

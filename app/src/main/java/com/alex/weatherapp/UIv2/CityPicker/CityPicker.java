@@ -10,6 +10,7 @@ import android.app.FragmentManager;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.support.v4.app.FragmentActivity;
 
 import com.alex.weatherapp.LoadingSystem.GeolookupRequest.LocationData;
 import com.alex.weatherapp.Utils.Logger;
@@ -42,6 +43,12 @@ public class CityPicker implements ICityPicker {
 
     @Override
     public void setCities(ArrayList<LocationData> places) {
+        if (places.isEmpty()){
+            Logger.d("Received empty place list");
+            mCities = places;
+            Fragment f = createFragment(null);
+            return;
+        }
         mCities = places;
         refresh();
     }
@@ -88,7 +95,7 @@ public class CityPicker implements ICityPicker {
     @Override
     public void clear() {
         mCities.clear();
-        refresh();
+        createFragment(null);
     }
 
     @Override
@@ -106,6 +113,7 @@ public class CityPicker implements ICityPicker {
         if (null == pickerUI){
             pickerUI = createFragment(city);
         }else {
+            if (!mCities.isEmpty())
             pickerUI.setSelected(city);
         }
     }
@@ -165,7 +173,7 @@ public class CityPicker implements ICityPicker {
             + place.getmPlaceName());
             return;
         }
-        pickCity(place);
+        if (!mCities.isEmpty()) pickCity(place);
     }
 
     private CityPickerFragment getFragment(){
@@ -183,15 +191,14 @@ public class CityPicker implements ICityPicker {
     private CityPickerFragment createFragment(LocationData selected){
         FragmentManager fm = mActivity.getFragmentManager();
         CityPickerFragment cpf = getFragment();
-        if (null == cpf){
-            if (null != selected) {
-                cpf = CityPickerFragment.newInstance(mCities);
-            }else {
-                cpf = CityPickerFragment.newInstance(mCities, selected);
-            }
-            fm.beginTransaction().replace(mFrameID, cpf, CityPickerFragment.CITY_PICKER_FRAGMENT)
-                    .commit();
+        if (null != selected) {
+            cpf = CityPickerFragment.newInstance(mCities);
+        }else {
+            cpf = CityPickerFragment.newInstance(mCities, selected);
         }
+        fm.beginTransaction().replace(mFrameID, cpf, CityPickerFragment.CITY_PICKER_FRAGMENT)
+                    .commit();
+
         return cpf;
     }
 
