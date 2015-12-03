@@ -63,7 +63,7 @@ public class CityPicker implements ICityPicker {
             return;
         }
         mCities.add(city);
-        refresh();
+        createFragment(null);
     }
 
     @Override
@@ -198,7 +198,6 @@ public class CityPicker implements ICityPicker {
         }
         fm.beginTransaction().replace(mFrameID, cpf, CityPickerFragment.CITY_PICKER_FRAGMENT)
                     .commit();
-
         return cpf;
     }
 
@@ -220,11 +219,9 @@ public class CityPicker implements ICityPicker {
     public ICityPickedFeedback getFeedback() {
         return mFeedback;
     }
-
     @Override
     public void setChannel() {
     }
-
     @Override
     public void cityPicked(LocationData cityPicked) {
         if (null != mFeedback){

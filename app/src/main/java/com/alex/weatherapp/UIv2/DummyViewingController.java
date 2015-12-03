@@ -164,6 +164,10 @@ public class DummyViewingController implements IViewingController {
         return null;
     }
 
+    @Override
+    public void addPlace(LocationData place) {
+        logMethod("void addPlace(" + place.getmPlaceName() +")");
+    }
 
     @Override
     public void saveState() {

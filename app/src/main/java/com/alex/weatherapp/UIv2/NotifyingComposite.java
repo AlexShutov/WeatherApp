@@ -153,6 +153,13 @@ public class NotifyingComposite implements IViewingController {
         }
     }
 
+    @Override
+    public void addPlace(LocationData place) {
+        for (BoundUnit u : mBoundUnits){
+            u.mController.addPlace(place);
+        }
+    }
+
     /** Here it sets feedback only for master controller
      * @param cityPickedFeedback
      */

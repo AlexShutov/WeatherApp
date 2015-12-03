@@ -1,10 +1,8 @@
 package com.alex.weatherapp.UIv2;
 
-import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.location.Location;
 import android.location.LocationManager;
@@ -103,16 +101,16 @@ public class TestActivity extends FragmentActivity implements
         mForecastViewer = new SimpleForecastViewer(frames, this);
 
         mHub = new UIHub();
-        boolean showMap = isMapActive();
+        final boolean showMap = isMapActive();
         if (showMap){
             /** Order of AppHub initialization amd enabling map support is importaint.
              * Map must be enabled only when hub is initialized, because it alters
              * ViewingController inside AppHub
              */
-            mHub.init(this, mCityPicker, mForecastViewer, false);
+            mHub.init(this, mCityPicker, mForecastViewer, false, null);
             enableMapsSupport(R.id.idc_ta_second_map, null, true);
         }else {
-            mHub.init(this, mCityPicker, mForecastViewer, true);
+            mHub.init(this, mCityPicker, mForecastViewer, true, null);
         }
 
         //enableMapsSupport(R.id.idc_ta_second_map);
@@ -160,6 +158,9 @@ public class TestActivity extends FragmentActivity implements
                 fm.beginTransaction().remove(mapFragment).commit();
             }
         }
+        /** When screen has no map, we can't add a new place -> don't need a
+         * GeoMonitor */
+        mHub.createGeoMonitor(false);
         mHub.switchToDefaultUIController();
     }
 
@@ -192,11 +193,14 @@ public class TestActivity extends FragmentActivity implements
          mapViewerCreator.setMapIFace(mMapIface);
          mapViewerCreator.setPlaceRepetitiveClickCallback(this);
          mHub.initEnchancedController(mapViewerCreator);
+         mHub.setRefreshOnInit(true);
+         /** geomonitor allows to request place name by inverse geolookup and
+          * display it in picker when free place is selected on a map
+          */
+         mHub.createGeoMonitor(true);
          mHub.refreshContent();
-         if (!mIsLifecycleMapEnabling){
-             //mHub.refreshContent();
-         }
      }
+
 
     @Override
     public void cityPicked(LocationData cityPicked) {
@@ -216,26 +220,7 @@ public class TestActivity extends FragmentActivity implements
      * */
     @Override
     public void handleRepeatingSelection(final LocationData place) {
-        showPopup("Place " + place.getmPlaceName() + " is clicked again");
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
-        dialogBuilder.setMessage("Are you sure you want to delete place " +
-                place.getmPlaceName() + " and its forecasts");
-        dialogBuilder.setTitle("Removing place");
-        dialogBuilder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                showPopup("user choose to remove place");
-                removeSavedPlaceAndItsForecast(place);
-            }
-        });
-        dialogBuilder.setNegativeButton("No, thanks", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                showMsg("user choose to leave the place be");
-            }
-        });
-        AlertDialog dialog = dialogBuilder.create();
-        dialog.show();
+
     }
 
     /** Activity keeps track of last free place observed (any place on map), and if
@@ -379,8 +364,6 @@ public class TestActivity extends FragmentActivity implements
             showPopup("You must select place on map first");
             return;
         }
-        String placeName = "Place "+ ++placeCnt;
-        mSelectedFreePlace.setmPlaceName(placeName);
         mPresenter.addNewPlace(mSelectedFreePlace);
     }
 

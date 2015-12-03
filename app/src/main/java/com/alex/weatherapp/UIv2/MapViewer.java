@@ -16,6 +16,7 @@ import com.alex.weatherapp.MapsFramework.MapVisuals.Shapes.CircularRegionData;
 import com.alex.weatherapp.MapsFramework.MapVisuals.Shapes.RectRegionData;
 import com.alex.weatherapp.MapsFramework.MapVisuals.Shapes.ShapeData;
 import com.alex.weatherapp.UIv2.CityPicker.ICityPickedFeedback;
+import com.alex.weatherapp.UIv2.FreePlaceGeoMonitor.IFreePlaceMonitor;
 import com.alex.weatherapp.Utils.Logger;
 import com.google.android.gms.maps.model.LatLng;
 
@@ -29,6 +30,8 @@ import java.util.TreeMap;
  */
 public class MapViewer implements IMapViewer {
     private static final int CONSTANT_WEATHER_RADII = 20000;
+
+    final String sAreaNamePrefix = "Area for: ";
 
     /** We need to be able to remove saved place, one way to do that is ask user about it
      * when he or she selects the same marker again (not area around marker, just marker,
@@ -57,6 +60,7 @@ public class MapViewer implements IMapViewer {
         mLastChoisenSavedPlace = null;
         mSelectedFreePlace = null;
         mEditCallback = null;
+        mFreePlaceMonitor = null;
     }
     public void setMapInterface(ISysShapesDisplay mapInterface){
         mMapIFace = mapInterface;
@@ -65,6 +69,15 @@ public class MapViewer implements IMapViewer {
     @Override
     public void setViewingController(IViewingController viewingController) {
         mViewingController = viewingController;
+    }
+
+    @Override
+    public void setFreePlaceMonitor(IFreePlaceMonitor monitor) {
+        if (null == monitor){
+            Logger.w("Monitor reference inside MapViewer is null," +
+                    " free place monitoring is now unavailible");
+        }
+        mFreePlaceMonitor = monitor;
     }
 
     /**
@@ -84,24 +97,28 @@ public class MapViewer implements IMapViewer {
     @Override
     public void setCities(ArrayList<LocationData> places) {
         Logger.i("MapViewer.setcities() is called");
-        final String areaNamePrefix = "Area for: ";
-        mConstantWeatherAreas = new TreeMap<>();
+        if (null == mConstantWeatherAreas) {
+            mConstantWeatherAreas = new TreeMap<>();
+        }else{
+            mConstantWeatherAreas.clear();
+        }
         mMapIFace.removeAllShapes();
         mMapIFace.removeInfoMarkers();
         for (LocationData place : places){
-            PlaceData markerData = new PlaceData(place);
-            markerData.setMarkerType(PlaceData.MarkerType.Standard);
-            mMapIFace.addInfoMarker(markerData);
-
-            LatLng center = new LatLng(place.getLat(), place.getLon());
-            CircularRegionData weatherArea = new CircularRegionData(center, CONSTANT_WEATHER_RADII);
-            weatherArea.setShapeName(areaNamePrefix + place.getmPlaceName());
-            mConstantWeatherAreas.put(place, weatherArea);
-            mMapIFace.addCircularArea(weatherArea);
+            addCity(place);
         }
     }
     @Override
-    public void addCity(LocationData city) {
+    public void addCity(LocationData place) {
+        PlaceData markerData = new PlaceData(place);
+        markerData.setMarkerType(PlaceData.MarkerType.Standard);
+        mMapIFace.addInfoMarker(markerData);
+        LatLng center = new LatLng(place.getLat(), place.getLon());
+        CircularRegionData weatherArea = new CircularRegionData(center, CONSTANT_WEATHER_RADII);
+        weatherArea.setShapeName(sAreaNamePrefix + place.getmPlaceName());
+        mConstantWeatherAreas.put(place, weatherArea);
+        mMapIFace.addCircularArea(weatherArea);
+
     }
     @Override
     public void removeCity(LocationData city) {
@@ -114,9 +131,15 @@ public class MapViewer implements IMapViewer {
     @Override
     public void clear() {
         setViewingController(null);
-        mConstantWeatherAreas.clear();
-        mMapIFace.removeAllShapes();
-        mMapIFace.removeInfoMarkers();
+        ArrayList<LocationData> areas = new ArrayList<>();
+        areas.addAll(mConstantWeatherAreas.keySet());
+        for (LocationData l : areas){
+            mMapIFace.removeShape(sAreaNamePrefix + l.getmPlaceName());
+            PlaceData markerData = new PlaceData(l);
+            markerData.setMarkerType(PlaceData.MarkerType.Standard);
+            mMapIFace.removeInfoMarekr(markerData);
+            mConstantWeatherAreas.remove(l);
+        }
     }
     @Override
     public boolean isHaving(LocationData place) {
@@ -124,20 +147,19 @@ public class MapViewer implements IMapViewer {
     }
     @Override
     public void pickCity(LocationData city) {
+        ((TestActivity)mActivity).showPopup("Place is picked: " + city.getmPlaceName());
         mPickedCity = city;
         mLastChoisenSavedPlace = city;
         if (null != mEditCallback) {
             mEditCallback.handleSelectionOfSavedPlace(city);
         }
-        Logger.i("MapViewer.pickCity("+ city.getmPlaceName() + ");");
+        Logger.i("MapViewer.pickCity(" + city.getmPlaceName() + ");");
         mMapIFace.moveAndZoomCamera(city, 9);
     }
     @Override
     public LocationData getPickedCity() throws IllegalStateException {
         return mPickedCity;
     }
-
-
 
     /**
      * The next three methods manages mapViewet's state and is used when MapViewer being
@@ -210,13 +232,13 @@ public class MapViewer implements IMapViewer {
 
     @Override
     public void cityPicked(LocationData cityPicked) {
-        pickCity(cityPicked);
     }
 
     private IFeedbackShapes mMapFeedback = new IFeedbackShapes() {
         @Override
         public void onCircularRegionSelected(CircularRegionData data) {
-            List<LocationData> places = mViewingController.getKnownPlaces();
+            List<LocationData> places = new ArrayList<>();
+            places.addAll(mConstantWeatherAreas.keySet());
             LatLng t = data.getCenter();
             LocationData center = new LocationData(t.latitude, t.longitude);
             LocationData areaAround = null;
@@ -227,12 +249,13 @@ public class MapViewer implements IMapViewer {
                     break;
                 }
             }
-            if (null != areaAround) {
-                if (null != mPickingFeedback) {
-                    mPickingFeedback.onCityPicked(areaAround);
-                }
-            }
             mCenterOfLastSelectedArea = areaAround;
+            if (null != mFreePlaceMonitor){
+                mFreePlaceMonitor.onSavedPlaceSelected();
+            }
+            if (null != areaAround) {
+                    mPickingFeedback.onCityPicked(areaAround);
+            }
         }
         @Override
         public void onRectRegionSelected(RectRegionData data) {
@@ -261,9 +284,18 @@ public class MapViewer implements IMapViewer {
                 isNew = (dist[0] >= CONSTANT_WEATHER_RADII);
             }
             if (isNew) {
-                String msg = "new place is pinned: (" + place.getLat() + ", " + place.getLon() + ")";
-                Logger.i(msg);
+                //String msg = "new place is pinned: (" + place.getLat() + ", " + place.getLon() + ")";
+                //Logger.i(msg);
                 mSelectedFreePlace = place;
+                String placeName =
+                        String.format("lat: %.4f, lon: %.4f", place.getLat(), place.getLon());
+                place.setmPlaceName(placeName);
+                String msg = place.getmPlaceName();
+                Logger.i(msg);
+                /** notify other app's part throught callbacks if there any */
+                if (null != mFreePlaceMonitor){
+                    mFreePlaceMonitor.acceptNewFreePlace(place);
+                }
                 if (null != mEditCallback) {
                     mEditCallback.handleFreePlace(place);
                 }
@@ -272,7 +304,6 @@ public class MapViewer implements IMapViewer {
                 }
             }
         }
-
         /** user may now observe any place on map, but this methods returns last saved place
          * being being picked
          * @return
@@ -289,7 +320,6 @@ public class MapViewer implements IMapViewer {
                 Logger.e("Place picker feedback ICityPickedFeedback isn't set");
             }
         }
-
         @Override
         public void showServiceMessage(String msg) {
             Toast.makeText(mActivity, msg, Toast.LENGTH_SHORT).show();
@@ -315,6 +345,7 @@ public class MapViewer implements IMapViewer {
         }
         return false;
     }
+
     private void checkWhetherPlaceIsPickedAgainAndProcessIfItIs(LocationData place){
         boolean isSavedPlace = checkWhetherClickedPlaceIsSavedOne(place);
         if (isSavedPlace) {
@@ -326,6 +357,10 @@ public class MapViewer implements IMapViewer {
                 if (null != mEditCallback){
                     mEditCallback.handleRepeatingSelection(place);
                 }
+            }
+            if (null != mFreePlaceMonitor){
+                /** saved place were clicked, notify free place monitor */
+                mFreePlaceMonitor.onSavedPlaceSelected();
             }
             mPickingFeedback.onCityPicked(place);
             mSelectedFreePlace = null;
@@ -374,6 +409,7 @@ public class MapViewer implements IMapViewer {
     private ISysShapesDisplay mMapIFace;
     private LocationData mPickedCity;
     private Activity mActivity;
+    private IFreePlaceMonitor mFreePlaceMonitor;
 
     private Map<LocationData, ShapeData> mConstantWeatherAreas;
     private LocationData mCenterOfLastSelectedArea;

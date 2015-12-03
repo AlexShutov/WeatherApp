@@ -54,6 +54,8 @@ public interface IViewingController {
     void restoreState();
     void clear();
 
+    void addPlace(LocationData place);
+
     /**
      * Get forecast for a known place.
      * @param place

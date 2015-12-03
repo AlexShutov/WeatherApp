@@ -167,6 +167,13 @@ public class ViewingController implements IViewingController {
     }
 
     @Override
+    public void addPlace(LocationData place) {
+
+        mKnownPlaces.add(new LocationData(place));
+        mCityPicker.addCity(new LocationData(place));
+    }
+
+    @Override
     public void setOnCityPickedFeedback(ICityPickedFeedback cityPickedFeedback) {
         mCityPickerExternalFeedback = cityPickedFeedback;
     }
