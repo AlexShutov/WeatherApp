@@ -1,6 +1,7 @@
 package com.alex.weatherapp.UIv2;
 
 import android.app.Activity;
+import android.location.Geocoder;
 import android.widget.Toast;
 
 import com.alex.weatherapp.LoadingSystem.ForecastRequest.Forecast;
@@ -194,6 +195,7 @@ public class UIHub implements IView {
             });
         }
         //mMapFacade.resume()
+
     }
 
     public void refreshContent(){

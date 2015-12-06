@@ -4,7 +4,7 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <application
         android:name=".WeatherApplication"
@@ -13,13 +13,17 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name=".UIv2.TestActivity"
-            android:label="Test screen" >
+            android:name=".LocationAPI.PlayTestScreen"
+            android:label="Google Play Test screen" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name=".UIv2.TestActivity"
+            android:label="Test screen" >
         </activity>
         <activity
             android:name=".UI.MainActivity"
@@ -37,11 +41,16 @@
             android:enabled="true"
             android:exported="false" >
         </service>
+        <service
+            android:name=".LocationAPI.GoogleLibFrameIntentService"
+            android:exported="false" >
+        </service>
 
         <receiver android:name=".UI.Test.SimpleAppWidget" >
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
+
             <meta-data
                 android:name="android.appwidget.provider"
                 android:resource="@xml/simple_appwidget" />
@@ -63,6 +72,9 @@
             android:exported="false" >
         </service>
 
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
 
         <!-- Maps v2 requires OpenGL ES 2.0 -->
         <uses-feature
@@ -76,8 +88,11 @@
         <uses-permission android:name="android.permission.INTERNET" />
         <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
         <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-        <uses-permission android:name= "com.google.android.providers.gsf.permission.READ_GSERVICES" />
+        <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
             android:value="AIzaSyAeKvhb0Ie_YNRJXhW6Sle3LGVywehDnB4 " />
