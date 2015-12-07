@@ -43,13 +43,63 @@ public class PlayTestScreen extends Activity {
         mFrame = new GoogleLibFrame(this);
 
 
+        mFrame.setDummyCompletionCallback(new LibFeature.IUserLocationCallback() {
+            @Override
+            public void onTaskCompleted(LibFeature.LocationResultData data) {
+                DummyFeature.DummyResultData d = (DummyFeature.DummyResultData) data;
+                showPopup("Resulting data received: " + d.getResponseName());
+            }
 
-            DummyFeature.DummyFeatureRequestBuilder rb =
-                    (DummyFeature.DummyFeatureRequestBuilder) mFrame.createRequestBuilder(DummyFeature.FEATURE_NAME);
-            rb.setMessage("Hello, i'm a message " );
-            rb.setPlaceCoords(new LocationData(47.213075, 38.929782, "Taganrog"));
-            Intent request = rb.createRequest();
-            mFrame.processRequest(request);
+            @Override
+            public void onError(String errorMessage) {
+                showPopup("Error has occured: " + errorMessage);
+            }
+        });
+       //LocationData place = new LocationData(47.213075, 38.929782, "Taganrog");
+        LocationData place = new LocationData(47.395423, 38.934211, "Unknown place");
+
+        DummyFeature.DummyFeatureRequestBuilder rb =
+                (DummyFeature.DummyFeatureRequestBuilder) mFrame.createRequestBuilder(DummyFeature.FEATURE_NAME);
+        rb.setMessage("Hello, i'm a message ");
+        rb.setPlaceCoords(place);
+        Intent request = rb.createRequest();
+        mFrame.processRequest(request);
+
+        mFrame.setInvGeoCompletionCallback(new InvGeoFeature.IUserInvGeoCallback() {
+            @Override
+            public void onTaskCompleted(LibFeature.LocationResultData data) {
+                InvGeoFeature.InvGeoResultData res = (InvGeoFeature.InvGeoResultData) data;
+                if (false){
+                //if (res.getNameSuggestions().size() > 1) {
+                    StringBuilder sb = new StringBuilder();
+                    sb.append("Suggestions: ");
+                    sb.append('\n');
+                    for (String s : res.getNameSuggestions()) {
+                        sb.append(s);
+                        sb.append('\n');
+                    }
+                    showMsg(sb.toString());
+                }else {
+                    showMsg(res.getNameSuggestions().get(0));
+                }
+            }
+
+            @Override
+            public void onNoResultFound(LocationData place) {
+                showPopup("No name suggestions is found for place: " + place.getPlaceName() );
+            }
+
+            @Override
+            public void onError(String errorMessage) {
+                showMsg(errorMessage);
+            }
+        });
+        InvGeoFeature.InvGeoRequestBuilder invGeoBuilder = new InvGeoFeature.InvGeoRequestBuilder();
+        invGeoBuilder.setPlaceForHandling(place);
+        request = invGeoBuilder.createRequest();
+        mFrame.processRequest(request);
+
+
 
 
     }
@@ -97,7 +147,7 @@ public class PlayTestScreen extends Activity {
     }
 
     void doWork(LocationData enteredPlace){
-        showPopup("Entered place: " + enteredPlace.getmPlaceName() + " " + enteredPlace.getLat() + ", " +
+        showPopup("Entered place: " + enteredPlace.getPlaceName() + " " + enteredPlace.getLat() + ", " +
         enteredPlace.getLon());
     }
 

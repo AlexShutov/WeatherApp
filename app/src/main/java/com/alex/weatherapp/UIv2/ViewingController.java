@@ -1,12 +1,8 @@
 package com.alex.weatherapp.UIv2;
 
-import android.location.LocationManager;
-
 import com.alex.weatherapp.LoadingSystem.ForecastRequest.Forecast;
 import com.alex.weatherapp.LoadingSystem.GeolookupRequest.LocationData;
 import com.alex.weatherapp.LoadingSystem.PlaceForecast;
-import com.alex.weatherapp.LoadingSystem.WUndergroundLayer.WUForecastData;
-import com.alex.weatherapp.LoadingSystem.WUndergroundLayer.WUndergroundGeolookupData;
 import com.alex.weatherapp.UI.PlaceForecastViewer.IForecastViewer;
 import com.alex.weatherapp.UIv2.CityPicker.ICityPickedFeedback;
 import com.alex.weatherapp.UIv2.CityPicker.ICityPicker;
@@ -137,13 +133,13 @@ public class ViewingController implements IViewingController {
     public PlaceForecast getForecast(LocationData place) throws IllegalStateException,
             IllegalArgumentException {
         if (!mKnownPlaces.contains(place)){
-            String msg = "requested place: " + place.getmPlaceName() +
+            String msg = "requested place: " + place.getPlaceName() +
                     " not found";
             Logger.w(msg);
             throw new IllegalArgumentException(msg);
         }
         if (!mForecasts.containsKey(place)){
-            String msg = "There are no forecast for place: " + place.getmPlaceName() + " yet";
+            String msg = "There are no forecast for place: " + place.getPlaceName() + " yet";
             Logger.w(msg);
             throw new IllegalStateException(msg);
         }

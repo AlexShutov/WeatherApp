@@ -15,6 +15,12 @@ public interface ICityPicker extends ICityPickerChannel {
     void setActivity(Activity activity);
     void setCities(ArrayList<LocationData> places);
     void addCity(LocationData city);
+
+    /** Selection callback is fired after altering data. We may want to change data without
+     * notifying the rest of a programm about it. For that call this method before callin
+     * add(..) and set(..) methods.
+     */
+    void disableNextSelectionCallbackFiring(int n, LocationData selectAfterModification);
     void removeCity(LocationData city);
     void removeCity(String placeName);
     void clear();
@@ -44,5 +50,4 @@ public interface ICityPicker extends ICityPickerChannel {
      * method in activity, passing activity instance
      */
     void setChannel();
-
 }

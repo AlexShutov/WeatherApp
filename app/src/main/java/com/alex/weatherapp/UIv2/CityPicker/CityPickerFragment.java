@@ -14,14 +14,10 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.alex.weatherapp.LoadingSystem.GeolookupRequest.LocationData;
-import com.alex.weatherapp.MapsFramework.BehaviourRelated.Action;
 import com.alex.weatherapp.R;
 import com.alex.weatherapp.Utils.Logger;
 
-import org.w3c.dom.Text;
-
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -44,7 +40,7 @@ public class CityPickerFragment extends Fragment {
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             LocationData place = getItem(position);
-            String placeName = place.getmPlaceName();
+            String placeName = place.getPlaceName();
             View v = super.getView(position, convertView, parent);
             TextView tv = (TextView) v;
             tv.setText(placeName);
@@ -64,7 +60,7 @@ public class CityPickerFragment extends Fragment {
             LocationData loc = getItem(position);
             View v = super.getDropDownView(position, convertView, parent);
             TextView tv = (TextView) v;
-            tv.setText(loc.getmPlaceName());
+            tv.setText(loc.getPlaceName());
             return v;
         }
     }
@@ -153,7 +149,7 @@ public class CityPickerFragment extends Fragment {
                         mOwner.cityPicked(null);
                     return;
                 } else {
-                    Logger.i("Item selected: " + mAdapter.getItem(position).getmPlaceName());
+                    Logger.i("Item selected: " + mAdapter.getItem(position).getPlaceName());
                 }
                 if (null != mOwner) {
                     LocationData pickedPlace = mAdapter.getItem(position);

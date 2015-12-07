@@ -212,7 +212,7 @@ public class TestActivity extends FragmentActivity implements
         if (null == pickedCity){
             showPopup("Nothing is selected");
         } else {
-            showMsg("Place selected: " + pickedCity.getmPlaceName());
+            showMsg("Place selected: " + pickedCity.getPlaceName());
         }
     }
 
@@ -421,7 +421,7 @@ public class TestActivity extends FragmentActivity implements
         }
         @Override
         public void onInfoMarkerClick(PlaceData infoMarker) {
-            showMsg("Info marker is clicked: " + infoMarker.getLocation().getmPlaceName());
+            showMsg("Info marker is clicked: " + infoMarker.getLocation().getPlaceName());
         }
     };
 }

@@ -28,6 +28,7 @@ public class GoogleLibFrame implements
     public static final String KEY_FINAL_RESULT_RECEIVER = "final_result_receiver";
     public static final int RESULT_OK = 0;
     public static final int RESULT_ERROR = 1;
+    public static final String RESULT_ERROR_MESSAGE = "result_error_message";
 
     public static String getKindOfFeature(Intent intent) throws IllegalArgumentException{
         if (!intent.hasExtra(KEY_FEATURE_KIND)){
@@ -45,6 +46,16 @@ public class GoogleLibFrame implements
         ResultReceiver resultReceiver = intent.getParcelableExtra(KEY_FINAL_RESULT_RECEIVER);
         return resultReceiver;
     }
+    public static void setErrorMessage(Intent intent, String message){
+        intent.putExtra(RESULT_ERROR_MESSAGE, message);
+    }
+    public static String getErrorMessage(Intent intent){
+        if (!intent.hasExtra(RESULT_ERROR_MESSAGE)){
+            return "Malfunction, no error";
+        }else {
+            return intent.getStringExtra(RESULT_ERROR_MESSAGE);
+        }
+    }
     /**
      * The Service, which processes results doesn't know about GoogleLibFrame instance.
      * Another solution- define ServiceResultParser as Parcelable and pass it in Intent
@@ -56,6 +67,8 @@ public class GoogleLibFrame implements
         switch (featureTag){
             case DummyFeature.FEATURE_NAME:
                 return new DummyFeature.DummyFeatureServiceResultParser();
+            case InvGeoFeature.FEATURE_NAME:
+                return new InvGeoFeature.InvGeoServiceResultParser();
             default:
                 throw new IllegalArgumentException("There are no feature: " + featureTag);
         }
@@ -100,8 +113,12 @@ public class GoogleLibFrame implements
      * Add all supported features here
      */
     private void initFeatures(){
+        /** add Dummy feature */
         DummyFeature dummyFeature = new DummyFeature(this);
         mFeatures.put(dummyFeature.getFeatureDescriptionTag(), dummyFeature);
+        /** Add inverse geocoding feature */
+        InvGeoFeature inverseGeoFeature = new InvGeoFeature(this);
+        mFeatures.put(inverseGeoFeature.getFeatureDescriptionTag(), inverseGeoFeature);
     }
     private LibFeature getFeature(String featureTag) throws IllegalArgumentException{
         if (!mFeatures.containsKey(featureTag)){
@@ -202,6 +219,7 @@ public class GoogleLibFrame implements
         return null;
     }
 
+
     /** Inherited from Google Api callbacks */
     @Override
     public void onConnected(Bundle bundle) {
@@ -211,6 +229,7 @@ public class GoogleLibFrame implements
             LibFeature feature = mFeatures.get(featureName);
             feature.onAPIConnected();
         }
+        mIsReady = true;
     }
     @Override
     public void onConnectionSuspended(int i) {
@@ -232,10 +251,39 @@ public class GoogleLibFrame implements
         }
     }
 
-
     public boolean isReady(){ return this.mIsReady;}
     public GoogleApiClient getApiClient(){ return mGoogleApiClient;}
     public Context getContext(){ return mContext;}
+
+    /** Helper method */
+    public void setDummyCompletionCallback(LibFeature.IUserLocationCallback callback){
+        setOnCompletionCallback(DummyFeature.FEATURE_NAME, callback);
+    }
+
+    /**
+     * InvGeo feature suppoorts two types of callback, in case of standard IUserLocationCallback
+     * it returns error if Geocoder has no suggestions, IUserLocationCallback has special method
+     * for this
+     * @param callback
+     */
+    public void setInvGeoCompletionCallback(LibFeature.IUserLocationCallback callback){
+        setOnCompletionCallback(InvGeoFeature.FEATURE_NAME, callback);
+    }
+    public void setInvGeoCompletionCallback(InvGeoFeature.IUserInvGeoCallback callback) {
+        setOnCompletionCallback(InvGeoFeature.FEATURE_NAME, callback);
+    }
+
+    private void setOnCompletionCallback(String featureName, LibFeature.IUserLocationCallback callback )
+        throws IllegalArgumentException {
+        LibFeature feature = getFeature(featureName);
+        feature.setFeatureCompletionCallback(callback);
+    }
+    public DummyFeature.DummyFeatureRequestBuilder createDummyFeatureRequestBuilder(){
+        return new DummyFeature.DummyFeatureRequestBuilder();
+    }
+    public InvGeoFeature.InvGeoRequestBuilder createInvGeoRequestBuilder(){
+        return new InvGeoFeature.InvGeoRequestBuilder();
+    }
 
     private GoogleApiClient mGoogleApiClient;
     private Context mContext;

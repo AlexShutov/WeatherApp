@@ -28,7 +28,7 @@ public class DummyFeature extends LibFeature {
     protected static final String DATA_RESPONSE_NAME = FEATURE_NAME + " Response name";
 
     public static class DummyResultData extends LocationResultData {
-        public DummyResultData(boolean isProcessed){ }
+        public DummyResultData(){}
         public void setResponseName(String responseName){ this.responseName = responseName;}
         public String getResponseName(){
             return responseName;
@@ -37,7 +37,6 @@ public class DummyFeature extends LibFeature {
     }
 
     public static class DummyFeatureRequestBuilder extends RequestBuilder {
-
         @Override
         public Intent createRequest() {
             Intent request = new Intent();
@@ -66,6 +65,15 @@ public class DummyFeature extends LibFeature {
         @Override
         public void parseResult(final Intent intent, final Context context) {
             String featureName = GoogleLibFrame.getKindOfFeature(intent);
+            ResultReceiver receiver = getResultReceiver();
+            if (!featureName.equals(DummyFeature.FEATURE_NAME)){
+                String msg = "Cant't parse result in intent because result type"+
+                        " doesn't match ServiceResultParser type, silently aborting";
+                Logger.e(msg);
+                GoogleLibFrame.setErrorMessage(intent, msg);
+                receiver.send(GoogleLibFrame.RESULT_ERROR, intent.getExtras());
+                return;
+            }
             final String message = DummyFeatureRequestBuilder.getMessage(intent);
             LocationData place = DummyFeatureRequestBuilder.getPlaceCoords(intent);
             Handler h = new Handler(Looper.getMainLooper());
@@ -79,7 +87,6 @@ public class DummyFeature extends LibFeature {
             String response = "I'm a response from Service";
             intent.putExtra(DATA_RESPONSE_NAME, response);
 
-            ResultReceiver receiver = getResultReceiver();
             receiver.send(GoogleLibFrame.RESULT_OK, intent.getExtras());
         }
     }
@@ -87,13 +94,23 @@ public class DummyFeature extends LibFeature {
     public class DummyFeatureFinalResultProcessor extends FinalResultProcessor {
         @Override
         public void processResultInFrame(int resultCode, Intent resultData) {
-            if (resultCode == GoogleLibFrame.RESULT_ERROR){
+
+            if (lookForErrors(resultCode, resultData)){
                 return;
             }
             String responseFromService = resultData.getStringExtra(DATA_RESPONSE_NAME);
             Logger.d("LocationAPI: DummyFeature: processing final result");
-            Context c = getFrame().getContext();
-            Toast.makeText(c, "Response message: " + responseFromService, Toast.LENGTH_SHORT).show();
+
+            /** use callback for informing user, if there is any */
+            IUserLocationCallback completionCallback = null;
+            try {
+                completionCallback = getCompletionCallback();
+            } catch (IllegalStateException e) {
+                return;
+            }
+            DummyResultData res = new DummyResultData();
+            res.setResponseName(responseFromService);
+            completionCallback.onTaskCompleted(res);
         }
     }
 

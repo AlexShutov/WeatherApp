@@ -12,6 +12,7 @@ import com.alex.weatherapp.Utils.Logger;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 
+import java.lang.ref.WeakReference;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -27,6 +28,7 @@ public abstract class LibFeature {
         mHoldingFrame = frame;
         mIsAPISupportsFeature = false;
         mIsRunning = false;
+        mFeatureCompletionCallback = null;
     }
 
     /** Tag class, extend in a concrete feature
@@ -79,6 +81,27 @@ public abstract class LibFeature {
      */
     public abstract class FinalResultProcessor {
         public abstract void processResultInFrame(int resultCode, Intent resultData);
+
+        /**
+         * @param resultCode
+         * @param resultData
+         * @return true if result Intent have had error
+         */
+        public boolean lookForErrors(int resultCode, Intent resultData){
+            /** use callback for informing user, if there is any */
+            IUserLocationCallback completionCallback = null;
+            try {
+                completionCallback = getCompletionCallback();
+            } catch (IllegalStateException e) {
+                return false;
+            }
+            if (resultCode == GoogleLibFrame.RESULT_ERROR) {
+                String errorMsg = GoogleLibFrame.getErrorMessage(resultData);
+                completionCallback.onError("error: " + errorMsg);
+                return true;
+            }
+            return false;
+        }
     }
 
     /**
@@ -182,10 +205,25 @@ public abstract class LibFeature {
         /** mIsRunning now is false anyway, just to make sure */
         mIsRunning = false;
     }
+    public void setFeatureCompletionCallback(IUserLocationCallback cb){
+        if (cb == null){
+            mFeatureCompletionCallback = null;
+        }
+        mFeatureCompletionCallback = new WeakReference<IUserLocationCallback>(cb);
+    }
+    protected IUserLocationCallback getCompletionCallback() throws IllegalStateException{
+        if (null == mFeatureCompletionCallback || null == mFeatureCompletionCallback.get()){
+            String msg = "LocationAPI: LibFeature: completion callback is null";
+            Logger.e(msg);
+            throw new IllegalStateException(msg);
+        }
+        return mFeatureCompletionCallback.get();
+    }
 
     protected GoogleLibFrame getFrame(){return mHoldingFrame; }
     public boolean isFeatureSupportedByAPI(){ return mIsAPISupportsFeature; }
 
+    private WeakReference<IUserLocationCallback> mFeatureCompletionCallback;
     private boolean mIsRunning;
     private boolean mIsAPISupportsFeature;
     private Queue<Intent> mPendingRequests;

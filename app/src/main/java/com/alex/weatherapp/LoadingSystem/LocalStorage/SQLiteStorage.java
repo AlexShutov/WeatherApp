@@ -154,7 +154,7 @@ public class SQLiteStorage {
             deletePlaceByCoord(place);
             SQLiteDatabase db = getWritableDatabase();
             ContentValues cv = new ContentValues();
-            cv.put(PlacesNamesTable.PLACE_NAME, place.getmPlaceName());
+            cv.put(PlacesNamesTable.PLACE_NAME, place.getPlaceName());
             cv.put(PlacesNamesTable.PLACE_LATITUDE, place.getLat());
             cv.put(PlacesNamesTable.PLACE_LONGITUDE, place.getLon());
             long insertResult = 0;

@@ -7,6 +7,8 @@ import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
+import com.alex.weatherapp.LocationAPI.DummyFeature;
+
 public class NetworkStateListener extends BroadcastReceiver implements
         INetStateListenerControl{
     private static final String sBroadcastAction = ConnectivityManager.CONNECTIVITY_ACTION;
@@ -24,6 +26,25 @@ public class NetworkStateListener extends BroadcastReceiver implements
         mContext = context;
         mConnectionState = ConnectionState.Offline;
         mConnectionType = ConnectionType.Unknown;
+    }
+
+    /**
+     * Stub feedback implementation
+     */
+    public static class DummyFeedback implements INetStateListenerFeedback {
+        public DummyFeedback(){}
+        @Override
+        public void onOffline() {
+        }
+        @Override
+        public void onOnline() {
+        }
+        @Override
+        public void onWiFiAvailible() {
+        }
+        @Override
+        public void onCellularAvailible() {
+        }
     }
 
     @Override

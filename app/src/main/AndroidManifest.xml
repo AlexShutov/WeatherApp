@@ -15,15 +15,14 @@
         <activity
             android:name=".LocationAPI.PlayTestScreen"
             android:label="Google Play Test screen" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
         <activity
             android:name=".UIv2.TestActivity"
             android:label="Test screen" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
         <activity
             android:name=".UI.MainActivity"
@@ -41,10 +40,11 @@
             android:enabled="true"
             android:exported="false" >
         </service>
-        <service
-            android:name=".LocationAPI.GoogleLibFrameIntentService"
-            android:exported="false" >
+        <service android:name=".LocationAPI.GoogleLibFrameIntentService"
+            android:enabled="true"
+            android:exported="false">
         </service>
+
 
         <receiver android:name=".UI.Test.SimpleAppWidget" >
             <intent-filter>
@@ -59,7 +59,6 @@
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
-
             <meta-data
                 android:name="android.appwidget.provider"
                 android:resource="@xml/weather_widget" />

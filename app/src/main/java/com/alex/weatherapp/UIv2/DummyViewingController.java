@@ -1,7 +1,6 @@
 package com.alex.weatherapp.UIv2;
 
 import android.app.Activity;
-import android.util.Log;
 
 import com.alex.weatherapp.LoadingSystem.GeolookupRequest.LocationData;
 import com.alex.weatherapp.LoadingSystem.PlaceForecast;
@@ -21,34 +20,25 @@ public class DummyViewingController implements IViewingController {
     class DummyCityPicker implements ICityPicker{
         @Override
         public void setActivity(Activity activity) {
-
         }
-
         @Override
         public void setCities(ArrayList<LocationData> places) {
-
         }
-
         @Override
         public void addCity(LocationData city) {
-
         }
-
+        @Override
+        public void disableNextSelectionCallbackFiring(int n, LocationData selectAfterModification) {
+        }
         @Override
         public void removeCity(LocationData city) {
-
         }
-
         @Override
         public void removeCity(String placeName) {
-
         }
-
         @Override
         public void clear() {
-
         }
-
         @Override
         public boolean isHaving(LocationData place) {
             return false;
@@ -144,7 +134,7 @@ public class DummyViewingController implements IViewingController {
     @Override
     public void handleIncomingForecast(PlaceForecast forecast) {
         logMethod("void handleIncomingForecast(PlaceForecast forecast) for "+
-        forecast.getPlace().getmPlaceName());
+        forecast.getPlace().getPlaceName());
     }
 
     @Override
@@ -166,7 +156,7 @@ public class DummyViewingController implements IViewingController {
 
     @Override
     public void addPlace(LocationData place) {
-        logMethod("void addPlace(" + place.getmPlaceName() +")");
+        logMethod("void addPlace(" + place.getPlaceName() +")");
     }
 
     @Override
@@ -187,7 +177,7 @@ public class DummyViewingController implements IViewingController {
     }
     private void logPickedCity(LocationData city){
         Logger.i("Dummy viewing controller " + mControllerName +"City picked: " +
-                city.getmPlaceName());
+                city.getPlaceName());
     }
 
     private String mControllerName;

@@ -64,7 +64,7 @@ public class WeatherWidgetUpdateService extends IntentService {
         views.setOnClickPendingIntent(R.id.idc_wd_btn_refresh, refreshIntent);
 
         LocationData place = forecast.getPlace();
-        views.setTextViewText(R.id.idc_wd_place_name, place.getmPlaceName());
+        views.setTextViewText(R.id.idc_wd_place_name, place.getPlaceName());
 
         Forecast.DayForecast dayForecast = null;
         if (!forecast.getForecast().mDayForecasts.isEmpty()){

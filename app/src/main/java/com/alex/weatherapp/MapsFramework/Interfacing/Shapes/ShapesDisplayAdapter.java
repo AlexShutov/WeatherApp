@@ -126,7 +126,7 @@ public class ShapesDisplayAdapter extends UserAdapterBase implements ISysShapesD
             }
         }
         if (null != clickedData){
-            Logger.d("Info marker is clicked: " + clickedData.getLocation().getmPlaceName());
+            Logger.d("Info marker is clicked: " + clickedData.getLocation().getPlaceName());
             getFeedbackInterface().onInfoMarkerClick(clickedData);
         }
     }
@@ -395,7 +395,7 @@ public class ShapesDisplayAdapter extends UserAdapterBase implements ISysShapesD
                 IEntity currProj = currMarker.getEntangled();
                 projCont.getEntities().remove(currProj);
                 dataCont.getEntities().remove(currMarker);
-                Logger.i("Info marker " + markerData.getLocation().getmPlaceName() + " is removed");
+                Logger.i("Info marker " + markerData.getLocation().getPlaceName() + " is removed");
                 break;
             }
         }

@@ -19,7 +19,7 @@ public class LocationData extends GeolookupData implements Comparable, Parcelabl
     public LocationData(LocationData src){
         setLat(src.getLat());
         setLon(src.getLon());
-        setmPlaceName(src.getmPlaceName());
+        setmPlaceName(src.getPlaceName());
     }
 
     @Override
@@ -55,7 +55,7 @@ public class LocationData extends GeolookupData implements Comparable, Parcelabl
 
     @Override
     public void writeToParcel(Parcel parcel, int flags) {
-        parcel.writeString(getmPlaceName());
+        parcel.writeString(getPlaceName());
         parcel.writeDouble(getLat());
         parcel.writeDouble(getLon());
     }
@@ -78,7 +78,7 @@ public class LocationData extends GeolookupData implements Comparable, Parcelabl
         setLon(parcel.readDouble());
     }
 
-    public String getmPlaceName() { return mPlaceName;}
+    public String getPlaceName() { return mPlaceName;}
     public void setmPlaceName(String placeName){ mPlaceName = placeName;}
 
     private String mPlaceName;

@@ -1,6 +1,8 @@
 package com.alex.weatherapp.UIv2.FreePlaceGeoMonitor;
 
+import com.alex.weatherapp.LoadingSystem.ForecastRequest.Forecast;
 import com.alex.weatherapp.LoadingSystem.GeolookupRequest.LocationData;
+import com.alex.weatherapp.LoadingSystem.PlaceForecast;
 import com.alex.weatherapp.UIv2.IViewingController;
 
 /**
@@ -38,8 +40,23 @@ import com.alex.weatherapp.UIv2.IViewingController;
  *      place names and forecast would take no effect. *
  */
 public interface IFreePlaceMonitor {
+    /**
+     * IFreePlaceMonitor conceptually doesn't need to know about outer program layer, e.g.
+     * IPresenter. AppHub must tie them together. All IFreePlaceMonitor need is be able to
+     * say AppHub that he want to know forecast for recently selected place. AppHub, in turn,
+     * must request it from IPresenter, if IPresenter is read, of course, and when LoadingSystem
+     * got that forecast, AppHub hands it to that monitor.
+     */
+    interface IForecastOnlineRequester{
+        void requestForecast(LocationData placeWeNeedForecastFor);
+    }
+    void setForecastRequesterLink(IForecastOnlineRequester requester);
     void acceptNewFreePlace(LocationData place);
+    void acceptFreePlaceForecast(PlaceForecast forecast);
     void onSavedPlaceSelected();
+
+    void onStart();
+    void onStop();
 
     /**
      * IFreePlaceMonitor cooperate with IViewingController

@@ -113,7 +113,8 @@ public class Presenter extends PresenterBase {
             public void onResult(LocationData place, Forecast forecast) {
                 if (!isViewReady()) return;
                 PlaceForecast f = new PlaceForecast(place, forecast);
-                mAttachedView.getContract().showPlaceForecast(f);
+                /** here was quite a nasty bug */
+                mAttachedView.getContract().showOnlineForecast(f);
             }
         });
     }
@@ -135,7 +136,7 @@ public class Presenter extends PresenterBase {
             return;
         }
         final LocationData p = placeInfo;
-        mModelContract.addNewPlace(p.getLat(), p.getLon(), p.getmPlaceName(),
+        mModelContract.addNewPlace(p.getLat(), p.getLon(), p.getPlaceName(),
                 new ILoadingFacade.IEmptyCallback() {
                     @Override
                     public void onCompletion() {

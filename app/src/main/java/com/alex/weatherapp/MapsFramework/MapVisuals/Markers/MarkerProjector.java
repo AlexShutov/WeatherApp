@@ -49,12 +49,12 @@ public class MarkerProjector extends ProjectorBase {
         switch (markerData.getMarkerType()){
             case Standard:
                 options.position(new LatLng(loc.getLat(), loc.getLon()))
-                        .title(markerData.getLocation().getmPlaceName())
+                        .title(markerData.getLocation().getPlaceName())
                         .icon(BitmapDescriptorFactory.defaultMarker());
                 break;
             case BitmapIcon:
                options.position(new LatLng(loc.getLat(), loc.getLon()))
-                        .title(loc.getmPlaceName())
+                        .title(loc.getPlaceName())
                         .icon(BitmapDescriptorFactory
                                 .fromResource(markerData.getBitmapIconResourceID()))
                                 .alpha(markerData.getAlpha());

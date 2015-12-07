@@ -115,7 +115,7 @@ public class MapViewer implements IMapViewer {
         mMapIFace.addInfoMarker(markerData);
         LatLng center = new LatLng(place.getLat(), place.getLon());
         CircularRegionData weatherArea = new CircularRegionData(center, CONSTANT_WEATHER_RADII);
-        weatherArea.setShapeName(sAreaNamePrefix + place.getmPlaceName());
+        weatherArea.setShapeName(sAreaNamePrefix + place.getPlaceName());
         mConstantWeatherAreas.put(place, weatherArea);
         mMapIFace.addCircularArea(weatherArea);
 
@@ -134,7 +134,7 @@ public class MapViewer implements IMapViewer {
         ArrayList<LocationData> areas = new ArrayList<>();
         areas.addAll(mConstantWeatherAreas.keySet());
         for (LocationData l : areas){
-            mMapIFace.removeShape(sAreaNamePrefix + l.getmPlaceName());
+            mMapIFace.removeShape(sAreaNamePrefix + l.getPlaceName());
             PlaceData markerData = new PlaceData(l);
             markerData.setMarkerType(PlaceData.MarkerType.Standard);
             mMapIFace.removeInfoMarekr(markerData);
@@ -147,13 +147,13 @@ public class MapViewer implements IMapViewer {
     }
     @Override
     public void pickCity(LocationData city) {
-        ((TestActivity)mActivity).showPopup("Place is picked: " + city.getmPlaceName());
+        ((TestActivity)mActivity).showPopup("Place is picked: " + city.getPlaceName());
         mPickedCity = city;
         mLastChoisenSavedPlace = city;
         if (null != mEditCallback) {
             mEditCallback.handleSelectionOfSavedPlace(city);
         }
-        Logger.i("MapViewer.pickCity(" + city.getmPlaceName() + ");");
+        Logger.i("MapViewer.pickCity(" + city.getPlaceName() + ");");
         mMapIFace.moveAndZoomCamera(city, 9);
     }
     @Override
@@ -197,7 +197,7 @@ public class MapViewer implements IMapViewer {
             prefs.edit().remove(fieldName).remove(fieldLat).remove(fieldLon).apply();
             return;
         }
-        prefs.edit().putString(fieldName, place.getmPlaceName())
+        prefs.edit().putString(fieldName, place.getPlaceName())
                 .putFloat(fieldLat, (float) place.getLat())
                 .putFloat(fieldLon, (float)place.getLon()).apply();
     }
@@ -243,7 +243,7 @@ public class MapViewer implements IMapViewer {
             LocationData center = new LocationData(t.latitude, t.longitude);
             LocationData areaAround = null;
             for (LocationData p : places) {
-                center.setmPlaceName(p.getmPlaceName());
+                center.setmPlaceName(p.getPlaceName());
                 if (center.equals(p)) {
                     areaAround = p;
                     break;
@@ -290,7 +290,7 @@ public class MapViewer implements IMapViewer {
                 String placeName =
                         String.format("lat: %.4f, lon: %.4f", place.getLat(), place.getLon());
                 place.setmPlaceName(placeName);
-                String msg = place.getmPlaceName();
+                String msg = place.getPlaceName();
                 Logger.i(msg);
                 /** notify other app's part throught callbacks if there any */
                 if (null != mFreePlaceMonitor){
@@ -353,7 +353,7 @@ public class MapViewer implements IMapViewer {
             if (null != mLastChoisenSavedPlace &&
                     mLastChoisenSavedPlace.equals(place)){
                 Logger.d("The same place being clicked repeatedly: " +
-                        place.getmPlaceName());
+                        place.getPlaceName());
                 if (null != mEditCallback){
                     mEditCallback.handleRepeatingSelection(place);
                 }
@@ -402,6 +402,10 @@ public class MapViewer implements IMapViewer {
      */
     @Override
     public void onDaySelected(int position) {
+    }
+
+    @Override
+    public void disableNextSelectionCallbackFiring(int n, LocationData selectAfterModification) {
     }
 
     private IViewingController mViewingController;

@@ -9,8 +9,6 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
-import android.support.v4.app.FragmentActivity;
 
 import com.alex.weatherapp.LoadingSystem.GeolookupRequest.LocationData;
 import com.alex.weatherapp.Utils.Logger;
@@ -34,6 +32,7 @@ public class CityPicker implements ICityPicker {
         mActivity = null;
         mFeedback = null;
         mCities = new ArrayList<>();
+        nextCallbackDisabledCnt = 0;
     }
 
     @Override
@@ -51,6 +50,14 @@ public class CityPicker implements ICityPicker {
         }
         mCities = places;
         refresh();
+    }
+
+    private int nextCallbackDisabledCnt;
+    private LocationData selectAfterModification;
+    @Override
+    public void disableNextSelectionCallbackFiring(int n, LocationData selectAfterModification) {
+        nextCallbackDisabledCnt = n;
+        this.selectAfterModification = selectAfterModification;
     }
 
     /**
@@ -82,7 +89,7 @@ public class CityPicker implements ICityPicker {
     public void removeCity(String placeName) {
         LocationData place = null;
         for (LocationData c : mCities){
-            if (c.getmPlaceName().equals(placeName)) {
+            if (c.getPlaceName().equals(placeName)) {
                 place = c;
                 break;
             }
@@ -149,7 +156,7 @@ public class CityPicker implements ICityPicker {
                 Context.MODE_PRIVATE);
         Logger.d("Saving last picked city");
         SharedPreferences.Editor editor = prefs.edit();
-        editor.putString(LAST_PICKED_CITY_NAME, selected.getmPlaceName());
+        editor.putString(LAST_PICKED_CITY_NAME, selected.getPlaceName());
         String lat = String.valueOf(selected.getLat());
         String lon = String.valueOf(selected.getLon());
         editor.putString(LAST_PICKED_LATITUDE, lat);
@@ -170,7 +177,7 @@ public class CityPicker implements ICityPicker {
         LocationData place = new LocationData(lat, lon, placeName);
         if (!mCities.contains(place)){
             Logger.w("Current list of cities doesn't have previously selected value: "
-            + place.getmPlaceName());
+            + place.getPlaceName());
             return;
         }
         if (!mCities.isEmpty()) pickCity(place);
@@ -224,13 +231,19 @@ public class CityPicker implements ICityPicker {
     }
     @Override
     public void cityPicked(LocationData cityPicked) {
-        if (null != mFeedback){
+        if (null != mFeedback && nextCallbackDisabledCnt == 0){
             if (null != cityPicked) {
-                Logger.d("City picked: " + cityPicked.getmPlaceName());
+                Logger.d("City picked: " + cityPicked.getPlaceName());
             }else {
                 Logger.d("No city is picked");
             }
             mFeedback.onCityPicked(cityPicked);
+        }else {
+            if (null != selectAfterModification){
+                pickCity(selectAfterModification);
+            }
+            selectAfterModification = null;
+            nextCallbackDisabledCnt--;
         }
     }
 

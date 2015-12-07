@@ -1,7 +1,6 @@
 package com.alex.weatherapp.UIv2;
 
 import android.app.Activity;
-import android.location.Geocoder;
 import android.widget.Toast;
 
 import com.alex.weatherapp.LoadingSystem.ForecastRequest.Forecast;
@@ -174,8 +173,10 @@ public class UIHub implements IView {
         mPresenter.disconnectView(this);
         //mMapFacade.suspend();
         mCityPicker.saveState();
+        if (null != mFreePlaceMonitor) mFreePlaceMonitor.onStop();
     }
     public void resume(IPresenter presenter){
+        if (null != mFreePlaceMonitor) mFreePlaceMonitor.onStart();
         mPresenter = presenter;
         mPresenter.setView(this);
         if (mPresenter.isPresenterReady()){
@@ -248,7 +249,7 @@ public class UIHub implements IView {
         }
         @Override
         public void showPlaceForecast(PlaceForecast forecast) {
-            showMsg("Forecast received for: " + forecast.getPlace().getmPlaceName());
+            showMsg("Forecast received for: " + forecast.getPlace().getPlaceName());
             mUIController.handleIncomingForecast(forecast);
             //mCityPicker.restoreState();
         }
@@ -258,7 +259,7 @@ public class UIHub implements IView {
         }
         @Override
         public void onNewPlaceIsAddedToPlaceRegistry(LocationData placeInfo) {
-            showPopup("Place is added: " + placeInfo.getmPlaceName());
+            showPopup("Place is added: " + placeInfo.getPlaceName());
             refreshContent();
         }
 
@@ -271,11 +272,21 @@ public class UIHub implements IView {
         }
         @Override
         public void showOnlineForecast(PlaceForecast forecast) {
-
+            if (null != mFreePlaceMonitor){
+                Logger.d("Accepting forecast for temporary place: " + forecast.getPlace().getPlaceName());
+                mFreePlaceMonitor.acceptFreePlaceForecast(forecast);
+            }
         }
+
+        /**
+         * Even though this method were originally meant to be used with LocationAPI, now I
+         * decided to move that API into IFreePlaceMonitor, but it still may sometime be used in
+         * other IViewContract, so i'll leave it be for now.
+         * @param placeLoc
+         * @param placeName
+         */
         @Override
         public void showGoogleGeolookup(LocationData placeLoc, String placeName) {
-
         }
     };
 
@@ -302,8 +313,26 @@ public class UIHub implements IView {
         GeoFreePlaceMonitor monitor = new GeoFreePlaceMonitor(mActivity);
         if (mMapViewer == null) return;
         mMapViewer.setFreePlaceMonitor(monitor);
-
         mFreePlaceMonitor = monitor;
+        /** monitor rection is triggered by map, which is itself IViewingConroller, so
+         * we need to use only default controller, which doesn't affect map. If map is disabled,
+         * Activity deactivates GeoMonitor too.
+         */
+        mFreePlaceMonitor.assignViewingController(mDefaultUIController);
+        /** This method is called after onResume, to be exact, when GoogleMap is ready. We need
+         * to activate monitor first time here
+         */
+        mFreePlaceMonitor.setForecastRequesterLink(new IFreePlaceMonitor.IForecastOnlineRequester() {
+            @Override
+            public void requestForecast(LocationData placeWeNeedForecastFor) {
+                if (null != mPresenter){
+                    Logger.d("Requesting foreast from IPresenter for temporary place: " +
+                    placeWeNeedForecastFor.getPlaceName());
+                    mPresenter.getForecastOnlineNoCache(placeWeNeedForecastFor);
+                }
+            }
+        });
+        mFreePlaceMonitor.onStart();
     }
 
 

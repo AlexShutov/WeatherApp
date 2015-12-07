@@ -3,7 +3,6 @@ package com.alex.weatherapp.UI.PlacesViewer;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Color;
-import android.inputmethodservice.Keyboard;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -88,7 +87,7 @@ public class PlaceNameAdapter extends BaseAdapter {
         RowData row = (RowData) getItem(position);
         LocationData place = row.getPlace();
         /** Set colors of text and background color depending on state of request */
-        tag.placeNameField.setText(place.getmPlaceName());
+        tag.placeNameField.setText(place.getPlaceName());
         tag.latitudeField.setText(String.valueOf(place.getLat()));
         tag.longitudeField.setText(String.valueOf(place.getLon()));
         tag.placeNameField.setTextColor(Color.BLACK);
