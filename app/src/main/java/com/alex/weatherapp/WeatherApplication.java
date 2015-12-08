@@ -25,7 +25,7 @@ public class WeatherApplication extends android.app.Application {
     public void onCreate() {
         super.onCreate();
         init();
-       Log.d("WeatherApplication", "Applicatiion object is created");
+       Log.d("WeatherApplication", "Application object is created");
     }
 
     /**

@@ -2,6 +2,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".MainActivity">
+    <item android:id="@+id/menu_main_toggle_ui_mode"
+        android:title="@string/ids_menu_toggle_ui_details"
+        android:orderInCategory="100"
+        app:showAsAction="never" />
     <item android:id="@+id/menu_main_update_online"
         android:title="@string/ids_menu_update_online"
         android:orderInCategory="100"
@@ -16,6 +20,10 @@
         app:showAsAction="never" />
     <item android:id="@+id/menu_main_add_new_place"
         android:title="@string/ids_menu_add_new_place"
+        android:orderInCategory="100"
+        app:showAsAction="never" />
+    <item android:id="@+id/menu_main_toggle_map"
+        android:title="@string/ids_menu_toggle_map_on"
         android:orderInCategory="100"
         app:showAsAction="never" />
 </menu>

@@ -18,6 +18,8 @@
     <string name="ids_fd_btn_other_place">Choose other place</string>
     <string name="ids_pn_latitude">Latitude:</string>
     <string name="ids_pn_longitude">Longitude:</string>
+    <string name="ids_pn_latitude_short">Lat</string>
+    <string name="ids_pn_longitude_short">Lon</string>
 
 
 
@@ -25,11 +27,22 @@
     <string name="ids_menu_remove_all_places">Remove all places</string>
     <string name="ids_menu_add_predefined_places">Add prefefined places</string>
     <string name="ids_menu_add_new_place">Add new place</string>
+    <string name="ids_menu_toggle_map_on">Activate map</string>
+    <string name="ids_menu_toggle_map_off">Deactivate map</string>
+    <string name="ids_menu_toggle_ui_dynamic">toggle dynamic UI</string>
+    <string name="ids_menu_toggle_ui_details">toggle detailed UI</string>
+
+    <string name="ids_dialog_add_place_ok">Add place</string>
+    <string name="ids_dialog_add_place_cancel">Cancel</string>
+
 
     <string name="ids_popup_add_places_deleted">All saved places were deleted</string>
     <string name="ids_popup_all_forecasts_is_loaded">"All forecasts is loaded, totally: "</string>
     <string name="ids_popup_predefined_add_predefined_places">Adding predefined places</string>
-
+    <string name="ids_popup_saved_place_selected">Saved place were selected</string>
+    <string name="ids_popup_select_place_first">You must select new place first</string>
+    <string name="ids_popup_acquired_n_places">acquired %s places</string>
+    <string name="ids_popup_place_added">place is added</string>
 
     <string name="idh_fd_date">30-September-2015</string>
     <string name="idh_fd_weekday">Saturday</string>
@@ -46,6 +59,7 @@
     <string name="idh_pn_place_name">Taganrog</string>
     <string name="idh_pn_latitude">66.6666666</string>
     <string name="idh_pn_longitude">66.6666666</string>
+    <string name="idh_add_new_place_place_name">enter place name here</string>
 
     <string name="idh_pn_no_places_found"> No saved places were found.
         Touch to add.</string>

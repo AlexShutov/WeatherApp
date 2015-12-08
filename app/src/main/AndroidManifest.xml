@@ -13,11 +13,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name=".LocationAPI.PlayTestScreen"
-            android:label="Google Play Test screen" >
-        </activity>
-        <activity
-            android:name=".UIv2.TestActivity"
+            android:name=".UIDynamic.UIDynamicActivity"
             android:label="Test screen" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -25,7 +21,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".UI.MainActivity"
+            android:name=".UIDetailed.UIDetailedActivity"
             android:label="@string/app_name" >
         </activity>
 
@@ -45,16 +41,6 @@
             android:exported="false">
         </service>
 
-
-        <receiver android:name=".UI.Test.SimpleAppWidget" >
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-            </intent-filter>
-
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/simple_appwidget" />
-        </receiver>
         <receiver android:name=".AppWidget.WeatherWidget" >
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -63,9 +49,6 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/weather_widget" />
         </receiver>
-
-        <service android:name=".UI.Test.RandomService" >
-        </service>
         <service
             android:name=".AppWidget.WeatherWidgetUpdateService"
             android:exported="false" >

@@ -6,6 +6,7 @@ import com.alex.weatherapp.LoadingSystem.ForecastRequest.Forecast;
 import com.alex.weatherapp.LoadingSystem.GeolookupRequest.LocationData;
 import com.alex.weatherapp.LoadingSystem.ILoadingFacade;
 import com.alex.weatherapp.LoadingSystem.PlaceForecast;
+import com.alex.weatherapp.Utils.Logger;
 
 import java.util.List;
 
@@ -19,12 +20,12 @@ public class Presenter extends PresenterBase {
 
     @Override
     public void onModelConnected() {
-        Log.d("Presenter", "void onModelConnected()");
+        Logger.d("Presenter", "void onModelConnected()");
     }
 
     @Override
     public void onModelDisconnected() {
-        Log.d("Presenter", "void onModelDisconnected()");
+        Logger.d("Presenter", "void onModelDisconnected()");
     }
 
 
@@ -38,7 +39,7 @@ public class Presenter extends PresenterBase {
 
     @Override
     public void getListOfSavedPlaces() {
-        Log.d("Presenter", "void getListOfSavedPlaces()");
+        Logger.d("Presenter", "void getListOfSavedPlaces()");
         /** We can't execut any requests if model isn't ready, that line of code is in every
          * IPresenterContract method */
         if (!isModelReady()) {
@@ -47,7 +48,7 @@ public class Presenter extends PresenterBase {
         mModelContract.getAllLocations(new ILoadingFacade.IOnLocationsLoadedCallback() {
             @Override
             public void onCompletion(List<LocationData> locations) {
-                Log.d("Presenter", "List of places is loaded");
+                Logger.d("Presenter", "List of places is loaded");
                 if (!isViewReady()) return;
                 mAttachedView.getContract().handleListOfSavedPlaces(locations);
             }
@@ -56,7 +57,7 @@ public class Presenter extends PresenterBase {
 
     @Override
     public void acquireForecastsForAllPlaces() {
-        Log.d("Presenter", "void acquireForecastsForAllPlaces()");
+        Logger.d("Presenter", "void acquireForecastsForAllPlaces()");
        if (!isModelReady()) {
             return;
         }
@@ -81,7 +82,7 @@ public class Presenter extends PresenterBase {
 
     @Override
     public void getStandAlonePlaceForecast(LocationData placeCoord) {
-        Log.d("Presenter", "void getStandAlonePlaceForecast(LocationData placeCoord)");
+        Logger.d("Presenter", "void getStandAlonePlaceForecast(LocationData placeCoord)");
         if (!isModelReady()) {
             return;
         }
@@ -103,7 +104,7 @@ public class Presenter extends PresenterBase {
 
     @Override
     public void getForecastOnlineNoCache(LocationData placeCoords) {
-        Log.d("Presenter", "void getForecastOnlineNoCache(LocationData placeCoords)");
+        Logger.d("Presenter", "void getForecastOnlineNoCache(LocationData placeCoords)");
         if (!isModelReady()) {
             return;
         }
@@ -121,7 +122,7 @@ public class Presenter extends PresenterBase {
 
     @Override
     public void setForceNetworkUpdate(boolean forceUpdate) {
-        Log.d("Presenter", "void setForceNetworkUpdate(boolean forceUpdate)");
+        Logger.d("Presenter", "void setForceNetworkUpdate(boolean forceUpdate)");
         if (!isModelReady()) {
             return;
         }
@@ -131,7 +132,7 @@ public class Presenter extends PresenterBase {
 
     @Override
     public void addNewPlace(final LocationData placeInfo) {
-        Log.d("Presenter", "void addNewPlace(LocationData placeInfo)");
+        Logger.d("Presenter", "void addNewPlace(LocationData placeInfo)");
         if (!isModelReady()) {
             return;
         }
@@ -148,7 +149,7 @@ public class Presenter extends PresenterBase {
 
     @Override
     public void removeAllPlaces() {
-        Log.d("Presenter", "void addNewPlace(LocationData placeInfo)");
+        Logger.d("Presenter", "void addNewPlace(LocationData placeInfo)");
         if (!isModelReady()) {
             return;
         }
